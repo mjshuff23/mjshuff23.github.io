@@ -212,7 +212,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #aboutwrap {
-	background: url(../img/about.jpg) no-repeat center top;
+	background: url(../img/me2.jpg) no-repeat center top;
 	margin-top: -70px;
 	padding-top: 250px;
 	text-align:center;
@@ -408,4 +408,9 @@ h1, h2, h3, h4, h5, h6 {
 
 .credits:link {
   color: #e98e04;
+}
+
+.index__me {
+  display: flex;
+  justify-content: center;
 }
