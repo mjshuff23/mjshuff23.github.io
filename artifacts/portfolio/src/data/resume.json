@@ -1,0 +1,139 @@
+{
+  "lastSynced": "2026-03-21",
+  "docId": "1B2KtRocWTPhkZwgTxw69VK_FLKXmvhOeXGxCmQ_V76Y",
+  "docUrl": "https://docs.google.com/document/d/1B2KtRocWTPhkZwgTxw69VK_FLKXmvhOeXGxCmQ_V76Y",
+  "personal": {
+    "name": "Michael Shuff",
+    "title": "Staff Systems Architect | AI Safeguards & Adversarial Researcher",
+    "email": "mjshuff23@gmail.com",
+    "phone": "(830) 734-0549",
+    "github": "https://github.com/mjshuff23"
+  },
+  "about": {
+    "bio": [
+      "Systems-focused builder with a 23-year technical trajectory rooted in a lifelong obsession with systems analysis and reverse-engineering, beginning in 1998. Complemented by 5+ years of professional leadership driving $30M+ in ARR through global-scale discovery platforms and scaling multi-continental retail infrastructure for the world’s largest brands. Leverages decades of systems-level intuition to prioritize deterministic integrity, currently specializing in AI Safeguards through the engineering of neuro-symbolic circuit breakers to mitigate deceptive model behaviors"
+    ],
+    "stats": [
+      {
+        "label": "Technical Experience",
+        "value": "23+ Years"
+      },
+      {
+        "label": "ARR Impact",
+        "value": "$30M+"
+      },
+      {
+        "label": "Engineers Mentored",
+        "value": "75+"
+      },
+      {
+        "label": "Specialization",
+        "value": "AI Safeguards"
+      }
+    ]
+  },
+  "skills": [
+    {
+      "title": "Languages",
+      "skills": [
+        "JavaScript (ES6+)",
+        "TypeScript",
+        "Python",
+        "SQL",
+        "HTML/CSS"
+      ]
+    },
+    {
+      "title": "Frontend",
+      "skills": [
+        "React",
+        "Next.js",
+        "Redux"
+      ]
+    },
+    {
+      "title": "Backend & Data",
+      "skills": [
+        "Node.js",
+        "NestJS",
+        "Express",
+        "GraphQL"
+      ]
+    },
+    {
+      "title": "Infrastructure",
+      "skills": [
+        "Docker",
+        "AWS (CloudFormation, Lambda, S3, CloudWatch)",
+        "GitHub Actions",
+        "CI/CD"
+      ]
+    },
+    {
+      "title": "Testing & Methods",
+      "skills": [
+        "Cypress",
+        "Jest",
+        "TDD"
+      ]
+    },
+    {
+      "title": "AI & Research",
+      "skills": [
+        "LLM APIs",
+        "Prompt Engineering",
+        "Ethical AI Systems"
+      ]
+    },
+    {
+      "title": "Other",
+      "skills": [
+        "Postgres"
+      ]
+    }
+  ],
+  "experience": [
+    {
+      "title": "IC2 Software Engineer",
+      "company": "Constructor.io",
+      "date": "Dec 2022 - Nov 2025",
+      "bullets": [
+        "Built real-time fitment POC that closed RealTruck after 7-month evaluation vs Algolia; client paid 5× Algolia’s rate.",
+        "Fitment system reused across CarParts, Classic Industries, and active POCs — foundational in $30M+ ARR conversion pipeline.",
+        "Created Constructor’s first B2B sandbox with fitment, now reused in multiple verticals",
+        "Lead Technical Architect for the first Hebrew/RTL search integration in Israel (Super-Pharm); engineered bidirectional personalization logic to maintain 100% catalog integrity across multi-million SKU pharmaceutical inventories.",
+        "Bridged visibility gaps between engineering effort and revenue attribution; documented internal value contributions."
+      ]
+    },
+    {
+      "title": "Associate Software Engineer / Customer Reliability Engineer",
+      "company": "Vault Health",
+      "date": "Mar 2022 - Sept 2022",
+      "bullets": [
+        "Deployed new DevOps SOPs for monitoring and prioritizing escalation tickets across all engineering teams.",
+        "Conducted daily monitoring of AWS Lambdas, SQS Queues, and S3 via Amazon Cloudwatch Log Groups and Insights to ensure system high availability",
+        "Monitored Stage, QA, and Production environments, utilizing New Relic APM (Application Performance Monitoring)",
+        "Designed and developed a new clinical research platform using Next.js, TypeScript, Redux Toolkit, React Composition, and Material-UI.",
+        "Completely automated full end-to-end/integration testing utilizing Jest and Cypress framework with custom fixtures"
+      ]
+    },
+    {
+      "title": "Technical Career Coach & Instructional Assistant",
+      "company": "App Academy",
+      "date": "Jan 2021 – Feb 2022",
+      "bullets": [
+        "Mentored over 75 graduates for software engineering roles through technical interviews, DS&A whiteboarding, and architectural code walkthroughs.",
+        "Taught over 70 students ES6, OOP, unit testing, and scalable full-stack development curriculum.",
+        "Reviewed hundreds of monthly projects, providing feedback on system design and debugging complex logic, maintaining high student success."
+      ]
+    },
+    {
+      "title": "App Academy",
+      "company": "Full-Stack Web Development Certification",
+      "date": "Graduated Fall 2020",
+      "bullets": [
+        "Intensive software engineering bootcamp prioritizing Object-Oriented Programming (OOP) and Agile/Scrum methodology"
+      ]
+    }
+  ]
+}

@@ -1,19 +1,15 @@
 /**
- * Fetch resume content from Michael Shuff's Google Docs resume and regenerate
- * artifacts/portfolio/src/data/resume.ts
+ * Fetch and parse Michael Shuff's AI-Focused Resume from Google Docs.
+ * Extracts structured data (skills, experience, contact, bio) and writes
+ * artifacts/portfolio/src/data/resume.json which resume.ts imports at build time.
  *
  * Google Docs ID: 1B2KtRocWTPhkZwgTxw69VK_FLKXmvhOeXGxCmQ_V76Y
- * URL: https://docs.google.com/document/d/1B2KtRocWTPhkZwgTxw69VK_FLKXmvhOeXGxCmQ_V76Y
- *
- * Prerequisites:
- *   - Google Docs integration must be connected in this Repl
  *
  * Run with:
  *   pnpm --filter @workspace/scripts run fetch:resume
  *
- * The script reads the document text, then writes a fresh resume.ts with
- * updated contact info, skills, experience, and ESCO project data.
- * After running, rebuild the portfolio: pnpm --filter @workspace/portfolio run build
+ * After running, rebuild:
+ *   pnpm --filter @workspace/portfolio run build
  */
 
 import { ReplitConnectors } from "@replit/connectors-sdk";
@@ -21,15 +17,79 @@ import fs from "fs";
 import path from "path";
 
 const DOC_ID = "1B2KtRocWTPhkZwgTxw69VK_FLKXmvhOeXGxCmQ_V76Y";
-const OUTPUT_FILE = path.resolve(
+const OUTPUT_JSON = path.resolve(
   process.cwd(),
-  "artifacts/portfolio/src/data/resume.ts",
+  "artifacts/portfolio/src/data/resume.json",
 );
 
 const connectors = new ReplitConnectors();
 
-async function fetchDocText(): Promise<string> {
-  console.log("Fetching Google Docs content...");
+interface GDocsElement {
+  textRun?: { content?: string; textStyle?: { bold?: boolean } };
+}
+
+interface GDocsParagraph {
+  paragraphStyle?: { namedStyleType?: string };
+  bullet?: { nestingLevel?: number };
+  elements?: GDocsElement[];
+}
+
+interface GDocsStructuralElement {
+  paragraph?: GDocsParagraph;
+}
+
+interface GDocsDocument {
+  title?: string;
+  body?: { content?: GDocsStructuralElement[] };
+}
+
+function extractText(para: GDocsParagraph): string {
+  return (para.elements ?? [])
+    .map((el) => el.textRun?.content ?? "")
+    .join("")
+    .replace(/\n$/, "")
+    .trim();
+}
+
+function isHeading(para: GDocsParagraph, level: 1 | 2 | 3 = 1): boolean {
+  const style = para.paragraphStyle?.namedStyleType ?? "";
+  return style === `HEADING_${level}`;
+}
+
+function isBullet(para: GDocsParagraph): boolean {
+  return para.bullet !== undefined;
+}
+
+function isBold(para: GDocsParagraph): boolean {
+  return (para.elements ?? []).some((el) => el.textRun?.textStyle?.bold);
+}
+
+interface ResumeData {
+  lastSynced: string;
+  docId: string;
+  docUrl: string;
+  personal: {
+    name: string;
+    title: string;
+    email: string;
+    phone: string;
+    github: string;
+  };
+  about: {
+    bio: string[];
+    stats: Array<{ label: string; value: string }>;
+  };
+  skills: Array<{ title: string; skills: string[] }>;
+  experience: Array<{
+    title: string;
+    company: string;
+    date: string;
+    bullets: string[];
+  }>;
+}
+
+async function fetchDocument(): Promise<GDocsDocument> {
+  console.log("Fetching Google Docs document...");
   const response = await connectors.proxy(
     "google-docs",
     `/v1/documents/${DOC_ID}`,
@@ -38,73 +98,180 @@ async function fetchDocText(): Promise<string> {
   if (!response.ok) {
     const body = await response.text();
     throw new Error(
-      `Google Docs API error ${response.status}: ${body.substring(0, 300)}`,
+      `Google Docs API ${response.status}: ${body.substring(0, 400)}`,
     );
   }
-  const doc = (await response.json()) as {
-    title?: string;
-    body?: { content?: Array<{ paragraph?: { elements?: Array<{ textRun?: { content?: string } }> } }> };
+  return response.json() as Promise<GDocsDocument>;
+}
+
+function parseDocument(doc: GDocsDocument): ResumeData {
+  const paragraphs = (doc.body?.content ?? [])
+    .map((block) => block.paragraph)
+    .filter((p): p is GDocsParagraph => p !== undefined);
+
+  const data: ResumeData = {
+    lastSynced: new Date().toISOString().split("T")[0],
+    docId: DOC_ID,
+    docUrl: `https://docs.google.com/document/d/${DOC_ID}`,
+    personal: {
+      name: "Michael Shuff",
+      title: "",
+      email: "",
+      phone: "",
+      github: "https://github.com/mjshuff23",
+    },
+    about: {
+      bio: [],
+      stats: [
+        { label: "Technical Experience", value: "23+ Years" },
+        { label: "ARR Impact", value: "$30M+" },
+        { label: "Engineers Mentored", value: "75+" },
+        { label: "Specialization", value: "AI Safeguards" },
+      ],
+    },
+    skills: [],
+    experience: [],
   };
 
-  const lines: string[] = [];
-  for (const block of doc.body?.content ?? []) {
-    if (block.paragraph?.elements) {
-      const lineText = block.paragraph.elements
-        .map((el) => el.textRun?.content ?? "")
-        .join("")
-        .trim();
-      if (lineText) lines.push(lineText);
+  let currentSection = "";
+  let currentSkillCategory: { title: string; skills: string[] } | null = null;
+  let currentJob: {
+    title: string;
+    company: string;
+    date: string;
+    bullets: string[];
+  } | null = null;
+
+  const EMAIL_RE = /[\w.]+@[\w.]+\.\w+/;
+  const PHONE_RE = /\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/;
+
+  for (const para of paragraphs) {
+    const text = extractText(para);
+    if (!text) continue;
+
+    if (isHeading(para, 1)) {
+      const upper = text.toUpperCase();
+      if (upper.includes("EXPERIENCE")) {
+        currentSection = "experience";
+        if (currentSkillCategory) {
+          data.skills.push(currentSkillCategory);
+          currentSkillCategory = null;
+        }
+        if (currentJob) {
+          data.experience.push(currentJob);
+          currentJob = null;
+        }
+      } else if (upper.includes("SKILL") || upper.includes("TECHNICAL")) {
+        currentSection = "skills";
+        if (currentJob) {
+          data.experience.push(currentJob);
+          currentJob = null;
+        }
+      } else if (upper.includes("ABOUT") || upper.includes("PROFILE") || upper.includes("SUMMARY")) {
+        currentSection = "about";
+      } else {
+        currentSection = "other";
+        if (data.personal.name === "Michael Shuff" && text.includes("Shuff")) {
+          data.personal.name = text;
+        }
+      }
+      continue;
+    }
+
+    if (isHeading(para, 2)) {
+      if (currentSection === "skills") {
+        if (currentSkillCategory) data.skills.push(currentSkillCategory);
+        currentSkillCategory = { title: text, skills: [] };
+      } else if (currentSection === "experience") {
+        if (currentJob) data.experience.push(currentJob);
+        const parts = text.split(/[|–—-]/);
+        currentJob = {
+          title: parts[0]?.trim() ?? text,
+          company: parts[1]?.trim() ?? "",
+          date: parts[2]?.trim() ?? "",
+          bullets: [],
+        };
+      }
+      continue;
+    }
+
+    if (isBullet(para)) {
+      if (currentSection === "skills" && currentSkillCategory) {
+        currentSkillCategory.skills.push(text);
+      } else if (currentSection === "experience" && currentJob) {
+        currentJob.bullets.push(text);
+      }
+      continue;
+    }
+
+    if (EMAIL_RE.test(text)) {
+      const match = text.match(EMAIL_RE);
+      if (match) data.personal.email = match[0];
+    }
+    if (PHONE_RE.test(text)) {
+      const match = text.match(PHONE_RE);
+      if (match) data.personal.phone = match[0];
+    }
+
+    if (currentSection === "about" && text.length > 60) {
+      data.about.bio.push(text);
+    }
+
+    if (!data.personal.title && (text.includes("Architect") || text.includes("Engineer") || text.includes("Researcher"))) {
+      if (text.length < 120) data.personal.title = text;
     }
   }
-  return lines.join("\n");
+
+  if (currentSkillCategory) data.skills.push(currentSkillCategory);
+  if (currentJob) data.experience.push(currentJob);
+
+  return data;
 }
 
 async function run() {
-  let rawText: string;
+  let doc: GDocsDocument;
   try {
-    rawText = await fetchDocText();
+    doc = await fetchDocument();
   } catch (err) {
+    console.error("Google Docs fetch failed:", (err as Error).message);
     console.error(
-      "Could not fetch from Google Docs — integration may not be configured:",
-      (err as Error).message,
-    );
-    console.error(
-      "The existing resume.ts was NOT overwritten. Ensure the Google Docs integration is connected.",
+      "Ensure the Google Docs integration is connected (Replit integrations panel).",
     );
     process.exit(1);
   }
 
-  console.log(`Fetched ${rawText.length} characters from Google Doc.`);
+  const data = parseDocument(doc);
+
+  console.log(`\nParsed resume:`);
+  console.log(`  Name: ${data.personal.name}`);
+  console.log(`  Title: ${data.personal.title || "(not parsed — check doc headings)"}`);
+  console.log(`  Email: ${data.personal.email || "(not found)"}`);
+  console.log(`  Phone: ${data.personal.phone || "(not found)"}`);
+  console.log(`  Skills sections: ${data.skills.length}`);
+  console.log(`  Experience entries: ${data.experience.length}`);
+  console.log(`  Bio paragraphs: ${data.about.bio.length}`);
+
+  if (data.skills.length === 0 || data.experience.length === 0) {
+    console.warn(
+      "\n⚠ Warning: parser found 0 skills categories or 0 experience entries.",
+    );
+    console.warn(
+      "The Google Doc's heading styles may not match HEADING_1/HEADING_2.",
+    );
+    console.warn(
+      "Falling back to existing resume.json to avoid wiping valid data.",
+    );
+    if (fs.existsSync(OUTPUT_JSON)) {
+      console.warn("Existing resume.json preserved.");
+      process.exit(0);
+    }
+  }
+
+  fs.writeFileSync(OUTPUT_JSON, JSON.stringify(data, null, 2), "utf8");
+  console.log(`\n✓ Written: ${OUTPUT_JSON}`);
   console.log(
-    "Writing resume.ts — NOTE: auto-parsing is approximate. Review the output and adjust manually if needed.\n",
+    "\nRebuild to apply: pnpm --filter @workspace/portfolio run build",
   );
-
-  const now = new Date().toISOString().split("T")[0];
-
-  const header = `/**
- * Resume data — sourced from Michael Shuff's AI-Focused Resume on Google Docs:
- * https://docs.google.com/document/d/1B2KtRocWTPhkZwgTxw69VK_FLKXmvhOeXGxCmQ_V76Y
- *
- * AUTO-GENERATED by scripts/src/fetch-resume-data.ts
- * Run \`pnpm --filter @workspace/scripts run fetch:resume\` to refresh.
- * Data last synced: ${now}
- *
- * Raw document text (for reference):
-${rawText
-  .split("\n")
-  .slice(0, 60)
-  .map((l) => ` * ${l}`)
-  .join("\n")}
- * ... (truncated — see Google Doc for full content)
- */
-`;
-
-  const existing = fs.readFileSync(OUTPUT_FILE, "utf8");
-  const newContent = header + existing.replace(/^\/\*\*[\s\S]*?\*\/\n\n/, "");
-  fs.writeFileSync(OUTPUT_FILE, newContent, "utf8");
-
-  console.log(`✓ Updated: ${OUTPUT_FILE}`);
-  console.log("\nReview the output and rebuild: pnpm --filter @workspace/portfolio run build");
 }
 
 run().catch((err) => {
