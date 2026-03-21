@@ -1,0 +1,88 @@
+import { motion } from "framer-motion";
+import { SectionHeading } from "./SectionHeading";
+
+const skillCategories = [
+  {
+    title: "AI & Research",
+    skills: ["LLM APIs", "Prompt Engineering", "Ethical AI Systems", "Adversarial Testing", "Neuro-Symbolic Logic", "Fallacy Detection"]
+  },
+  {
+    title: "Languages",
+    skills: ["JavaScript (ES6+)", "TypeScript", "Python", "SQL", "HTML/CSS"]
+  },
+  {
+    title: "Frontend",
+    skills: ["React", "Next.js", "Redux", "Tailwind CSS", "Material-UI"]
+  },
+  {
+    title: "Backend & Data",
+    skills: ["Node.js", "NestJS", "Express", "GraphQL", "PostgreSQL"]
+  },
+  {
+    title: "Infrastructure",
+    skills: ["Docker", "AWS (CloudFormation, Lambda, S3)", "GitHub Actions", "CI/CD"]
+  },
+  {
+    title: "Testing & Methods",
+    skills: ["Cypress", "Jest", "TDD", "Agile/Scrum", "Systems Architecture"]
+  }
+];
+
+export function Skills() {
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0 }
+  };
+
+  return (
+    <section className="py-24 bg-card/30" id="skills">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeading title="Technical Matrix" index="02" subtitle="Core competencies & frameworks" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {skillCategories.map((category, idx) => (
+            <motion.div
+              key={category.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              className="bg-background border border-border p-6 rounded-xl hover:border-primary/30 transition-all duration-300"
+            >
+              <h3 className="text-xl font-display font-semibold text-foreground mb-4 border-b border-border pb-2 inline-block">
+                {category.title}
+              </h3>
+              <motion.div 
+                variants={container}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+                className="flex flex-wrap gap-2"
+              >
+                {category.skills.map((skill) => (
+                  <motion.span
+                    key={skill}
+                    variants={item}
+                    className="px-3 py-1 bg-secondary text-secondary-foreground font-mono text-xs sm:text-sm rounded border border-border hover:border-primary/50 hover:text-primary transition-colors cursor-default"
+                  >
+                    {skill}
+                  </motion.span>
+                ))}
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

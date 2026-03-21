@@ -1,0 +1,13 @@
+packages:
+  "framer-motion": "For premium scroll animations and hover effects"
+  "lucide-react": "For UI icons"
+
+images:
+  - path: "artifacts/portfolio/public/images/hero-bg.png"
+    description: "Abstract, very dark, highly technical network nodes or circuit board pattern with subtle electric teal and deep blue glowing elements. Suitable for an AI researcher's background. Very minimal, moody, and dark."
+    aspect_ratio: "16:9"
+
+notes:
+  - "Static single-page portfolio application"
+  - "No backend API required"
+  - "Theme starts in dark mode by default"

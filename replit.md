@@ -94,3 +94,19 @@ Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHea
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+
+- `deploy:gh-pages` — builds the portfolio and pushes all dist files to `mjshuff23/mjshuff23.github.io` via GitHub API. Requires the GitHub integration to be connected. Run: `pnpm run build --filter @workspace/portfolio && pnpm --filter @workspace/scripts run deploy:gh-pages`
+
+### `artifacts/portfolio` (`@workspace/portfolio`)
+
+Michael Shuff's personal portfolio site. React + TypeScript + Vite. Single-page with smooth-scroll anchor sections.
+
+- **Sections**: Hero, About, Skills, Projects (ESCO ecosystem), Experience, Contact
+- **Design**: Dark-mode-first (electric teal on deep space blue), Chakra Petch display font, Manrope body font
+- **Content source**: Michael Shuff's Google Docs resume + ESCO Figma FigJam boards
+- **ESCO Figma boards**: 4 boards linked in the Projects section (Layered Architecture, Cross-Domain, System Architecture, SocraBot Fallacy Model)
+- **Dependencies**: `framer-motion` (animations), `lucide-react` (icons), `wouter` (routing)
+- **Theme**: `src/hooks/use-theme.ts` — persists to localStorage, defaults to dark
+- **Dev**: `pnpm --filter @workspace/portfolio run dev` (port 21113)
+- **Build**: `pnpm --filter @workspace/portfolio run build` → `dist/`
+- **Deploy to GitHub Pages**: `pnpm --filter @workspace/scripts run deploy:gh-pages` (uses GitHub integration)
