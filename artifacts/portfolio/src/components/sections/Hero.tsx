@@ -1,6 +1,10 @@
 import { motion } from "framer-motion";
 import { FileText, ArrowRight } from "lucide-react";
 import { PremiumButton } from "@/components/ui/PremiumButton";
+import { PERSONAL, ABOUT } from "@/data/resume";
+
+const [heroTitle, heroSubtitle] = PERSONAL.title.split("|").map(s => s.trim());
+const DOC_URL = `https://docs.google.com/document/d/${import.meta.env.VITE_RESUME_DOC_ID ?? "1B2KtRocWTPhkZwgTxw69VK_FLKXmvhOeXGxCmQ_V76Y"}`;
 
 export function Hero() {
   return (
@@ -37,8 +41,10 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-5xl sm:text-6xl md:text-8xl font-display font-bold text-foreground leading-[1.1] mb-6"
           >
-            MICHAEL <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">SHUFF</span>
+            {PERSONAL.name.split(" ")[0]} <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">
+              {PERSONAL.name.split(" ").slice(1).join(" ")}
+            </span>
           </motion.h1>
 
           <motion.h2
@@ -47,9 +53,14 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl md:text-2xl text-muted-foreground font-light mb-4 border-l-2 border-primary/50 pl-4"
           >
-            Staff Systems Architect <br className="md:hidden" />
-            <span className="hidden md:inline"> | </span> 
-            AI Safeguards & Adversarial Researcher
+            {heroTitle}
+            {heroSubtitle && (
+              <>
+                <br className="md:hidden" />
+                <span className="hidden md:inline"> | </span>
+                {heroSubtitle}
+              </>
+            )}
           </motion.h2>
 
           <motion.p
@@ -58,7 +69,9 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-base md:text-lg text-muted-foreground/80 mb-10 max-w-2xl leading-relaxed"
           >
-            Building transparent, auditable AI systems with deterministic integrity. Engineering neuro-symbolic circuit breakers to mitigate deceptive model behaviors.
+            {ABOUT.bio[0]
+              ? ABOUT.bio[0].split(". ").slice(0, 2).join(". ") + "."
+              : "Building transparent, auditable AI systems with deterministic integrity."}
           </motion.p>
 
           <motion.div
@@ -73,7 +86,7 @@ export function Hero() {
               </PremiumButton>
             </a>
             
-            <a href="https://docs.google.com/document/d/1B2KtRocWTPhkZwgTxw69VK_FLKXmvhOeXGxCmQ_V76Y" target="_blank" rel="noreferrer">
+            <a href={DOC_URL} target="_blank" rel="noreferrer">
               <PremiumButton variant="outline" className="w-full sm:w-auto gap-2 bg-background/50 backdrop-blur-sm">
                 <FileText className="w-4 h-4" />
                 Audit Resume

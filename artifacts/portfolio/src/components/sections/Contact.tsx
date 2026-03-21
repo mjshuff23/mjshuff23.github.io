@@ -2,6 +2,11 @@ import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { Mail, Github, Phone, Copy, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
+import { PERSONAL } from "@/data/resume";
+
+const githubHandle = PERSONAL.github.replace("https://github.com/", "");
+const phoneFormatted = PERSONAL.phone;
+const phoneDigits = PERSONAL.phone.replace(/\D/g, "");
 
 export function Contact() {
   const [copied, setCopied] = useState<string | null>(null);
@@ -48,12 +53,12 @@ export function Contact() {
             </div>
             <div className="text-center">
               <p className="font-display font-semibold text-foreground uppercase mb-1">Email</p>
-              <a href="mailto:mjshuff23@gmail.com" className="text-sm text-muted-foreground hover:text-primary transition-colors font-mono">
-                mjshuff23@gmail.com
+              <a href={`mailto:${PERSONAL.email}`} className="text-sm text-muted-foreground hover:text-primary transition-colors font-mono">
+                {PERSONAL.email}
               </a>
             </div>
             <button 
-              onClick={() => handleCopy("mjshuff23@gmail.com", "email")}
+              onClick={() => handleCopy(PERSONAL.email, "email")}
               className="mt-2 p-2 rounded-md hover:bg-secondary text-muted-foreground transition-colors"
               title="Copy Email"
             >
@@ -73,12 +78,12 @@ export function Contact() {
             </div>
             <div className="text-center">
               <p className="font-display font-semibold text-foreground uppercase mb-1">GitHub</p>
-              <a href="https://github.com/mjshuff23" target="_blank" rel="noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors font-mono">
-                github.com/mjshuff23
+              <a href={PERSONAL.github} target="_blank" rel="noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors font-mono">
+                github.com/{githubHandle}
               </a>
             </div>
             <a 
-              href="https://github.com/mjshuff23" 
+              href={PERSONAL.github}
               target="_blank" 
               rel="noreferrer"
               className="mt-2 px-4 py-2 rounded-md bg-secondary text-secondary-foreground text-xs font-mono hover:bg-primary hover:text-primary-foreground transition-colors"
@@ -99,12 +104,12 @@ export function Contact() {
             </div>
             <div className="text-center">
               <p className="font-display font-semibold text-foreground uppercase mb-1">Phone</p>
-              <a href="tel:8307340549" className="text-sm text-muted-foreground hover:text-primary transition-colors font-mono">
-                (830) 734-0549
+              <a href={`tel:${phoneDigits}`} className="text-sm text-muted-foreground hover:text-primary transition-colors font-mono">
+                {phoneFormatted}
               </a>
             </div>
             <button 
-              onClick={() => handleCopy("8307340549", "phone")}
+              onClick={() => handleCopy(phoneDigits, "phone")}
               className="mt-2 p-2 rounded-md hover:bg-secondary text-muted-foreground transition-colors"
               title="Copy Phone"
             >
