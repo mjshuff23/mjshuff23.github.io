@@ -1,4 +1,5 @@
-import { Terminal, Github, Linkedin, Mail } from "lucide-react";
+import { Terminal, Github, Mail } from "lucide-react";
+import { PERSONAL } from "@/data/resume";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -19,17 +20,13 @@ export function Footer() {
           </div>
           
           <div className="flex items-center gap-6">
-            <a href="https://github.com/mjshuff23" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+            <a href={PERSONAL.github} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
               <Github className="w-5 h-5" />
               <span className="sr-only">GitHub</span>
             </a>
-            <a href="mailto:mjshuff23@gmail.com" className="text-muted-foreground hover:text-primary transition-colors">
+            <a href={`mailto:${PERSONAL.email}`} className="text-muted-foreground hover:text-primary transition-colors">
               <Mail className="w-5 h-5" />
               <span className="sr-only">Email</span>
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              <Linkedin className="w-5 h-5" />
-              <span className="sr-only">LinkedIn</span>
             </a>
           </div>
           
