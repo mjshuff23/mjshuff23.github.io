@@ -10,6 +10,7 @@
  */
 
 import { ReplitConnectors } from "@replit/connectors-sdk";
+import type { ProxyOptions } from "@replit/connectors-sdk";
 import fs from "fs";
 import path from "path";
 
@@ -20,7 +21,35 @@ const DIST_DIR = path.resolve(process.cwd(), "artifacts/portfolio/dist/public");
 
 const connectors = new ReplitConnectors();
 
-async function ghProxy(endpoint: string, options: RequestInit = {}) {
+interface GHRef {
+  object: { sha: string };
+}
+
+interface GHCommit {
+  tree: { sha: string };
+}
+
+interface GHBlob {
+  sha: string;
+}
+
+interface GHTree {
+  sha: string;
+}
+
+interface GHNewCommit {
+  sha: string;
+  message: string;
+}
+
+function assertShape<T>(value: unknown, label: string): T {
+  if (value == null || typeof value !== "object") {
+    throw new Error(`Unexpected GitHub API response for ${label}: ${JSON.stringify(value)}`);
+  }
+  return value as T;
+}
+
+async function ghProxy(endpoint: string, options: ProxyOptions = {}): Promise<unknown> {
   const response = await connectors.proxy("github", endpoint, options);
   if (!response.ok) {
     const body = await response.text();
@@ -58,13 +87,15 @@ async function deploy() {
   console.log(`Found ${files.length} files to deploy.`);
 
   // 1. Get current HEAD commit SHA
-  const refData = await ghProxy(`/repos/${OWNER}/${REPO}/git/ref/heads/${BRANCH}`);
-  const latestCommitSha = refData.object.sha as string;
+  const refRaw = await ghProxy(`/repos/${OWNER}/${REPO}/git/ref/heads/${BRANCH}`);
+  const refData = assertShape<GHRef>(refRaw, "git/ref");
+  const latestCommitSha = refData.object.sha;
   console.log(`\nCurrent HEAD: ${latestCommitSha.substring(0, 7)}`);
 
   // 2. Get current tree SHA
-  const commitData = await ghProxy(`/repos/${OWNER}/${REPO}/git/commits/${latestCommitSha}`);
-  const baseTreeSha = commitData.tree.sha as string;
+  const commitRaw = await ghProxy(`/repos/${OWNER}/${REPO}/git/commits/${latestCommitSha}`);
+  const commitData = assertShape<GHCommit>(commitRaw, "git/commits");
+  const baseTreeSha = commitData.tree.sha;
 
   // 3. Create blobs for all files
   console.log("\nUploading files...");
@@ -73,13 +104,14 @@ async function deploy() {
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     const isText = /\.(html|css|js|json|txt|xml|svg|ico|ts|map)$/.test(file.path);
-    const blobData = await ghProxy(`/repos/${OWNER}/${REPO}/git/blobs`, {
+    const blobRaw = await ghProxy(`/repos/${OWNER}/${REPO}/git/blobs`, {
       method: "POST",
       body: JSON.stringify({
         content: isText ? file.content.toString("utf8") : file.content.toString("base64"),
         encoding: isText ? "utf-8" : "base64",
       }),
     });
+    const blobData = assertShape<GHBlob>(blobRaw, "git/blobs");
 
     treeEntries.push({
       path: file.path,
@@ -94,14 +126,15 @@ async function deploy() {
   }
 
   // 4. Create new tree
-  const newTree = await ghProxy(`/repos/${OWNER}/${REPO}/git/trees`, {
+  const treeRaw = await ghProxy(`/repos/${OWNER}/${REPO}/git/trees`, {
     method: "POST",
     body: JSON.stringify({ base_tree: baseTreeSha, tree: treeEntries }),
   });
+  const newTree = assertShape<GHTree>(treeRaw, "git/trees");
 
   // 5. Create commit
   const now = new Date().toISOString();
-  const newCommit = await ghProxy(`/repos/${OWNER}/${REPO}/git/commits`, {
+  const commitRaw2 = await ghProxy(`/repos/${OWNER}/${REPO}/git/commits`, {
     method: "POST",
     body: JSON.stringify({
       message: `Deploy portfolio build — ${now}`,
@@ -109,6 +142,7 @@ async function deploy() {
       parents: [latestCommitSha],
     }),
   });
+  const newCommit = assertShape<GHNewCommit>(commitRaw2, "git/commits (new)");
 
   // 6. Update branch ref
   await ghProxy(`/repos/${OWNER}/${REPO}/git/refs/heads/${BRANCH}`, {
@@ -121,7 +155,7 @@ async function deploy() {
   console.log(`  Live at: https://${OWNER}.github.io\n`);
 }
 
-deploy().catch((err) => {
+deploy().catch((err: Error) => {
   console.error("\nDeploy failed:", err.message);
   process.exit(1);
 });
