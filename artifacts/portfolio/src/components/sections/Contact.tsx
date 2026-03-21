@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
-import { Mail, Github, Phone, Copy, CheckCircle2 } from "lucide-react";
+import { Mail, Github, Linkedin, Phone, Copy, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { PERSONAL } from "@/data/resume";
 
@@ -39,7 +39,7 @@ export function Contact() {
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -97,6 +97,32 @@ export function Contact() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
+            className="glass-panel p-6 rounded-xl flex flex-col items-center gap-4 hover:border-primary/50 transition-colors group"
+          >
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+              <Linkedin className="w-6 h-6" />
+            </div>
+            <div className="text-center">
+              <p className="font-display font-semibold text-foreground uppercase mb-1">LinkedIn</p>
+              <a href={PERSONAL.linkedin} target="_blank" rel="noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors font-mono">
+                linkedin.com/in/michael-shuff
+              </a>
+            </div>
+            <a
+              href={PERSONAL.linkedin}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 px-4 py-2 rounded-md bg-secondary text-secondary-foreground text-xs font-mono hover:bg-primary hover:text-primary-foreground transition-colors"
+            >
+              Visit Profile
+            </a>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
             className="glass-panel p-6 rounded-xl flex flex-col items-center gap-4 hover:border-primary/50 transition-colors group"
           >
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">

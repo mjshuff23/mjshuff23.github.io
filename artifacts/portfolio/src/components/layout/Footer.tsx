@@ -1,4 +1,4 @@
-import { Terminal, Github, Mail } from "lucide-react";
+import { Terminal, Github, Mail, Linkedin } from "lucide-react";
 import { PERSONAL } from "@/data/resume";
 
 export function Footer() {
@@ -23,6 +23,10 @@ export function Footer() {
             <a href={PERSONAL.github} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
               <Github className="w-5 h-5" />
               <span className="sr-only">GitHub</span>
+            </a>
+            <a href={PERSONAL.linkedin} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+              <Linkedin className="w-5 h-5" />
+              <span className="sr-only">LinkedIn</span>
             </a>
             <a href={`mailto:${PERSONAL.email}`} className="text-muted-foreground hover:text-primary transition-colors">
               <Mail className="w-5 h-5" />
