@@ -1,16 +1,34 @@
-  - name: Install dependencies
-    run: pnpm install --no-frozen-lockfile
+name: Deploy Portfolio to GitHub Pages
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
 
-  - name: Build portfolio
-    run: pnpm --filter @workspace/portfolio run build
-    env:
-      PORT: 3000
-      BASE_PATH: /
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
 
-  - name: Deploy to GitHub Pages
-    uses: peaceiris/actions-gh-pages@v3
-    with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      publish_dir: ./artifacts/portfolio/dist/public
-      external_repository: mjshuff23/mjshuff23.github.io
-      publish_branch: gh-pages
+      - name: Build portfolio
+        run: pnpm --filter @workspace/portfolio run build
+        env:
+          PORT: 3000
+          BASE_PATH: /
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./artifacts/portfolio/dist/public
+          external_repository: mjshuff23/mjshuff23.github.io
+          publish_branch: gh-pages
