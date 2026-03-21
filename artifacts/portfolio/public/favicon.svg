@@ -1,3 +1,13 @@
-<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <filter id="g" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect x="60" y="60" width="392" height="392" rx="72" fill="#040E22" stroke="#00B4FF" stroke-opacity="0.35" />
+  <g filter="url(#g)" stroke="#00E6FF" stroke-width="26" stroke-linecap="square" fill="none">
+    <path d="M145 185 L230 256 L145 327"/>
+    <path d="M285 310 L380 310"/>
+  </g>
 </svg>

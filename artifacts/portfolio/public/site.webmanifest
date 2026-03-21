@@ -1,0 +1,24 @@
+{
+  "name": "M.SHUFF",
+  "short_name": "M.SHUFF",
+  "icons": [
+    {
+      "src": "/clean-favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/clean-favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/clean-apple-touch-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#040E22",
+  "background_color": "#040E22",
+  "display": "standalone"
+}
