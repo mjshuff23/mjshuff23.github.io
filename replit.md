@@ -110,3 +110,14 @@ Michael Shuff's personal portfolio site. React + TypeScript + Vite. Single-page 
 - **Dev**: `pnpm --filter @workspace/portfolio run dev` (port 21113)
 - **Build**: `pnpm --filter @workspace/portfolio run build` → `dist/`
 - **Deploy to GitHub Pages**: `pnpm --filter @workspace/scripts run deploy:gh-pages` (uses GitHub integration)
+
+#### Google Docs Data Pipeline
+
+Resume content is sourced live from Google Docs and compiled into a static JSON file:
+
+1. **Google Doc**: `1B2KtRocWTPhkZwgTxw69VK_FLKXmvhOeXGxCmQ_V76Y` (Shuff_Michael_Resume_AI_Focus)
+2. **Output**: `artifacts/portfolio/src/data/resume.json` — committed to the repo and bundled at build time
+3. **Schema**: `lastSynced`, `personal`, `about.bio`, `about.stats`, `skills[]`, `experience[]`
+4. **Data import**: `resume.ts` imports from `resume.json` (TypeScript `resolveJsonModule: true`) and re-exports typed constants (`PERSONAL`, `ABOUT`, `SKILLS`, `EXPERIENCE`). Static ESCO project data remains in `resume.ts`.
+5. **Refresh**: Run `pnpm --filter @workspace/scripts run fetch:resume` to regenerate `resume.json` from Google Docs. Requires either `GOOGLE_DOCS_TOKEN` env var or the Google Docs Replit integration connected. The script uses the OAuth access token from the integration.
+6. **Note on Google Docs format**: The resume uses `NORMAL_TEXT` for all paragraphs (including section headers). Section detection is done by keyword matching (e.g. "SUMMARY", "SKILLS", "RELEVANT EXPERIENCE") and bullet detection via the `bullet` property. Skills are pipe-delimited on a single line.

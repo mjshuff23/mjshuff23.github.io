@@ -33,7 +33,7 @@ export const SKILLS = resumeJson.skills.length > 0
     ];
 
 export const EXPERIENCE = resumeJson.experience.length > 0
-  ? resumeJson.experience.filter(e => e.company && e.bullets.length > 0)
+  ? resumeJson.experience.filter(e => e.company && e.bullets.length >= 2)
   : [
       {
         title: "IC2 Software Engineer",

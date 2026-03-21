@@ -12,6 +12,18 @@
  *   pnpm --filter @workspace/portfolio run build
  */
 
+/**
+ * NOTE: The Google Docs connector uses OAuth directly — not the ReplitConnectors
+ * proxy pattern (which returns 400 for Google Docs). This script uses the
+ * @replit/connectors-sdk to get the OAuth access token and then calls the
+ * Google Docs REST API directly with a Bearer token.
+ *
+ * The Replit Google Docs integration stores OAuth credentials in:
+ *   connection.settings.oauth.credentials.access_token
+ *
+ * Usage:
+ *   pnpm --filter @workspace/scripts run fetch:resume
+ */
 import { ReplitConnectors } from "@replit/connectors-sdk";
 import fs from "fs";
 import path from "path";
@@ -88,18 +100,51 @@ interface ResumeData {
   }>;
 }
 
+async function getAccessToken(): Promise<string> {
+  // 1. Check environment variable first (works in CI/CD)
+  if (process.env.GOOGLE_DOCS_TOKEN) {
+    return process.env.GOOGLE_DOCS_TOKEN;
+  }
+
+  // 2. Try ReplitConnectors SDK (works in Replit run environment)
+  try {
+    const connections = (connectors as unknown as {
+      listConnections?: (name: string) => Promise<Array<{ settings: { oauth?: { credentials?: { access_token?: string } } } }>>;
+    }).listConnections;
+
+    if (typeof connections === "function") {
+      const conns = await connections("google-docs");
+      const token = conns?.[0]?.settings?.oauth?.credentials?.access_token;
+      if (token) return token;
+    }
+  } catch {
+    // Connector listConnections not available in this context
+  }
+
+  throw new Error(
+    [
+      "Google Docs access token not found. Set one of the following:",
+      "  1. GOOGLE_DOCS_TOKEN env var: export GOOGLE_DOCS_TOKEN=<your-token>",
+      "  2. Connect the Google Docs integration in Replit's integrations panel.",
+      "     Then run this script again inside Replit (not CI/CD).",
+      "",
+      "To get your token: open the Replit integrations panel → Google Docs → copy the OAuth access token.",
+    ].join("\n"),
+  );
+}
+
 async function fetchDocument(): Promise<GDocsDocument> {
-  console.log("Fetching Google Docs document...");
-  const response = await connectors.proxy(
-    "google-docs",
-    `/v1/documents/${DOC_ID}`,
-    { method: "GET" },
+  console.log("Fetching Google Docs document via OAuth...");
+  const accessToken = await getAccessToken();
+
+  // Call Google Docs REST API directly with Bearer token
+  const response = await fetch(
+    `https://docs.googleapis.com/v1/documents/${DOC_ID}`,
+    { headers: { Authorization: `Bearer ${accessToken}` } },
   );
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(
-      `Google Docs API ${response.status}: ${body.substring(0, 400)}`,
-    );
+    throw new Error(`Google Docs API ${response.status}: ${body.substring(0, 400)}`);
   }
   return response.json() as Promise<GDocsDocument>;
 }
@@ -133,97 +178,114 @@ function parseDocument(doc: GDocsDocument): ResumeData {
     experience: [],
   };
 
-  let currentSection = "";
-  let currentSkillCategory: { title: string; skills: string[] } | null = null;
-  let currentJob: {
-    title: string;
-    company: string;
-    date: string;
-    bullets: string[];
-  } | null = null;
-
-  const EMAIL_RE = /[\w.]+@[\w.]+\.\w+/;
+  // The actual Google Doc uses NORMAL_TEXT for *everything* (even section headers).
+  // Only "PROJECTS & RESEARCH" is styled as HEADING_3. Everything else is detected
+  // by short, all-caps or well-known keyword text (no bullet) + pipe-delimited lines.
+  const EMAIL_RE = /[\w.+-]+@[\w-]+\.\w+/;
   const PHONE_RE = /\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/;
+  const JOB_RE = /^(.+?)\s*\|\s*(.+?)\s*\|\s*(.+)$/;
+  const SKILL_CATEGORIES = [
+    { title: "Languages",         keywords: ["JavaScript", "TypeScript", "Python", "SQL", "HTML", "CSS"] },
+    { title: "Frontend",          keywords: ["React", "Next.js", "Redux", "Tailwind", "Material-UI", "Vue", "Angular"] },
+    { title: "Backend & Data",    keywords: ["Node.js", "NestJS", "Express", "GraphQL", "PostgreSQL", "MongoDB", "REST"] },
+    { title: "Infrastructure",    keywords: ["Docker", "AWS", "GitHub Actions", "CI/CD", "Lambda", "S3", "CloudFormation"] },
+    { title: "Testing & Methods", keywords: ["Cypress", "Jest", "TDD", "Agile", "Scrum", "Architecture"] },
+    { title: "AI & Research",     keywords: ["LLM", "Prompt", "Ethical", "Adversarial", "Neuro", "Fallacy", "AI", "NLP", "ML"] },
+  ];
+
+  let currentSection = "";
+  let currentJob: {
+    title: string; company: string; date: string; bullets: string[];
+  } | null = null;
+  let headerCount = 0;
+  let skillsRawLine = "";
 
   for (const para of paragraphs) {
-    const text = extractText(para);
+    const text = extractText(para).replace(/\s+/g, " ");
     if (!text) continue;
+    const bullet = isBullet(para);
+    const upper = text.toUpperCase().trim();
 
-    if (isHeading(para, 1)) {
-      const upper = text.toUpperCase();
+    // --- Parse first 3 non-bullet lines as name / title / contact ---
+    if (headerCount === 0 && text.includes("Shuff")) {
+      data.personal.name = text;
+      headerCount++;
+      continue;
+    }
+    if (headerCount === 1 && !bullet && (text.includes("Architect") || text.includes("Researcher"))) {
+      data.personal.title = text;
+      headerCount++;
+      continue;
+    }
+    if (headerCount === 2 && !bullet && (EMAIL_RE.test(text) || PHONE_RE.test(text))) {
+      const emailMatch = text.match(EMAIL_RE);
+      const phoneMatch = text.match(PHONE_RE);
+      if (emailMatch) data.personal.email = emailMatch[0];
+      if (phoneMatch) data.personal.phone = phoneMatch[0];
+      headerCount++;
+      continue;
+    }
+
+    // --- Detect section headers (short, non-bullet, keyword-matched) ---
+    if (!bullet && text.length < 45) {
+      if (upper === "SUMMARY" || upper.includes("PROFILE")) {
+        currentSection = "summary"; continue;
+      }
+      if (upper === "SKILLS") {
+        currentSection = "skills"; continue;
+      }
+      if (upper.includes("PROJECT") || upper.includes("RESEARCH")) {
+        if (currentJob) { data.experience.push(currentJob); currentJob = null; }
+        currentSection = "projects"; continue;
+      }
       if (upper.includes("EXPERIENCE")) {
-        currentSection = "experience";
-        if (currentSkillCategory) {
-          data.skills.push(currentSkillCategory);
-          currentSkillCategory = null;
-        }
-        if (currentJob) {
-          data.experience.push(currentJob);
-          currentJob = null;
-        }
-      } else if (upper.includes("SKILL") || upper.includes("TECHNICAL")) {
-        currentSection = "skills";
-        if (currentJob) {
-          data.experience.push(currentJob);
-          currentJob = null;
-        }
-      } else if (upper.includes("ABOUT") || upper.includes("PROFILE") || upper.includes("SUMMARY")) {
-        currentSection = "about";
-      } else {
-        currentSection = "other";
-        if (data.personal.name === "Michael Shuff" && text.includes("Shuff")) {
-          data.personal.name = text;
-        }
+        if (currentJob) { data.experience.push(currentJob); currentJob = null; }
+        currentSection = "experience"; continue;
       }
-      continue;
     }
 
-    if (isHeading(para, 2)) {
-      if (currentSection === "skills") {
-        if (currentSkillCategory) data.skills.push(currentSkillCategory);
-        currentSkillCategory = { title: text, skills: [] };
-      } else if (currentSection === "experience") {
-        if (currentJob) data.experience.push(currentJob);
-        const parts = text.split(/[|–—-]/);
-        currentJob = {
-          title: parts[0]?.trim() ?? text,
-          company: parts[1]?.trim() ?? "",
-          date: parts[2]?.trim() ?? "",
-          bullets: [],
-        };
-      }
-      continue;
-    }
-
-    if (isBullet(para)) {
-      if (currentSection === "skills" && currentSkillCategory) {
-        currentSkillCategory.skills.push(text);
-      } else if (currentSection === "experience" && currentJob) {
-        currentJob.bullets.push(text);
-      }
-      continue;
-    }
-
-    if (EMAIL_RE.test(text)) {
-      const match = text.match(EMAIL_RE);
-      if (match) data.personal.email = match[0];
-    }
-    if (PHONE_RE.test(text)) {
-      const match = text.match(PHONE_RE);
-      if (match) data.personal.phone = match[0];
-    }
-
-    if (currentSection === "about" && text.length > 60) {
+    // --- Section body ---
+    if (currentSection === "summary" && !bullet && text.length > 50) {
       data.about.bio.push(text);
     }
 
-    if (!data.personal.title && (text.includes("Architect") || text.includes("Engineer") || text.includes("Researcher"))) {
-      if (text.length < 120) data.personal.title = text;
+    if (currentSection === "skills" && !bullet && text.includes("|")) {
+      skillsRawLine = text;
+    }
+
+    if (currentSection === "experience") {
+      if (!bullet) {
+        const jobMatch = text.match(JOB_RE);
+        if (jobMatch) {
+          if (currentJob) data.experience.push(currentJob);
+          currentJob = {
+            title: jobMatch[1].trim(),
+            company: jobMatch[2].trim(),
+            date: jobMatch[3].trim(),
+            bullets: [],
+          };
+        }
+      } else if (currentJob) {
+        currentJob.bullets.push(text);
+      }
     }
   }
-
-  if (currentSkillCategory) data.skills.push(currentSkillCategory);
   if (currentJob) data.experience.push(currentJob);
+
+  // --- Categorize pipe-delimited skills ---
+  if (skillsRawLine) {
+    const allSkills = skillsRawLine.split("|").map((s) => s.trim()).filter(Boolean);
+    const used = new Set<string>();
+    for (const cat of SKILL_CATEGORIES) {
+      const matched = allSkills.filter(
+        (s) => !used.has(s) && cat.keywords.some((kw) => s.toLowerCase().includes(kw.toLowerCase()))
+      );
+      matched.forEach((s) => used.add(s));
+      if (matched.length > 0) data.skills.push({ title: cat.title, skills: matched });
+    }
+    const rest = allSkills.filter((s) => !used.has(s));
+    if (rest.length > 0) data.skills.push({ title: "Other", skills: rest });
+  }
 
   return data;
 }
