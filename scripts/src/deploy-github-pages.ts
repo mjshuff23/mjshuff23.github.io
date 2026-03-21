@@ -7,17 +7,29 @@
  * Prerequisites:
  *   1. Build the portfolio first: pnpm --filter @workspace/portfolio run build
  *   2. GitHub integration must be connected in this Repl
+ *   3. ImageMagick (`magick` CLI) must be installed — required to compress large
+ *      images (>~675KB) before upload to stay within the connector proxy's ~1MB
+ *      body size limit. On NixOS/Replit this is provided by default.
  */
 
 import { ReplitConnectors } from "@replit/connectors-sdk";
 import type { ProxyOptions } from "@replit/connectors-sdk";
 import fs from "fs";
+import os from "os";
 import path from "path";
+import { fileURLToPath } from "url";
+import { execFileSync } from "child_process";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const WORKSPACE_ROOT = path.resolve(__dirname, "..", "..");
 
 const OWNER = "mjshuff23";
 const REPO = "mjshuff23.github.io";
-const BRANCH = "main";
-const DIST_DIR = path.resolve(process.cwd(), "artifacts/portfolio/dist/public");
+const BRANCH = "master";
+const DIST_DIR = path.resolve(WORKSPACE_ROOT, "artifacts/portfolio/dist/public");
+
+const MAX_BODY_BYTES = 900 * 1024;
 
 const connectors = new ReplitConnectors();
 
@@ -74,8 +86,62 @@ function readAllFiles(dir: string, base = dir): Array<{ path: string; content: B
   return results;
 }
 
+function checkMagickAvailable(): void {
+  try {
+    execFileSync("magick", ["--version"], { stdio: "ignore" });
+  } catch {
+    throw new Error(
+      "ImageMagick (`magick`) is required for compressing large images before upload " +
+      "but was not found in PATH. Install ImageMagick and retry.\n" +
+      "  On NixOS/Replit it is available by default.\n" +
+      "  On macOS: brew install imagemagick\n" +
+      "  On Debian/Ubuntu: apt-get install imagemagick",
+    );
+  }
+}
+
+function compressImageBuffer(filePath: string, content: Buffer): Buffer {
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext !== ".png" && ext !== ".jpg" && ext !== ".jpeg") {
+    return content;
+  }
+
+  const tmpDir = os.tmpdir();
+  const tmpIn = path.join(tmpDir, `deploy-in-${Date.now()}${ext}`);
+  const tmpOut = path.join(tmpDir, `deploy-out-${Date.now()}${ext}`);
+
+  try {
+    fs.writeFileSync(tmpIn, content);
+
+    if (ext === ".png") {
+      execFileSync("magick", [
+        tmpIn,
+        "-strip",
+        "-colors", "256",
+        "-define", "png:compression-level=9",
+        tmpOut,
+      ]);
+    } else {
+      execFileSync("magick", [
+        tmpIn,
+        "-strip",
+        "-quality", "80",
+        tmpOut,
+      ]);
+    }
+
+    const compressed = fs.readFileSync(tmpOut);
+    return compressed;
+  } finally {
+    if (fs.existsSync(tmpIn)) fs.unlinkSync(tmpIn);
+    if (fs.existsSync(tmpOut)) fs.unlinkSync(tmpOut);
+  }
+}
+
 async function deploy() {
   console.log(`\nDeploying to https://github.com/${OWNER}/${REPO} (branch: ${BRANCH})\n`);
+
+  checkMagickAvailable();
 
   if (!fs.existsSync(DIST_DIR)) {
     console.error(`Error: dist directory not found at ${DIST_DIR}`);
@@ -104,10 +170,33 @@ async function deploy() {
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     const isText = /\.(html|css|js|json|txt|xml|svg|ico|ts|map)$/.test(file.path);
+
+    let fileContent = file.content;
+
+    if (!isText) {
+      const bodySize = Math.ceil(file.content.length * 4 / 3) + 50;
+      if (bodySize > MAX_BODY_BYTES) {
+        const origKB = (file.content.length / 1024).toFixed(1);
+        fileContent = compressImageBuffer(file.path, file.content);
+        const compKB = (fileContent.length / 1024).toFixed(1);
+        console.log(`  Compressed ${file.path}: ${origKB}KB → ${compKB}KB`);
+
+        const compBodySize = Math.ceil(fileContent.length * 4 / 3) + 50;
+        if (compBodySize > MAX_BODY_BYTES) {
+          throw new Error(
+            `${file.path} is still too large after compression ` +
+            `(${compKB}KB compressed → ~${(compBodySize / 1024).toFixed(1)}KB body, ` +
+            `limit is ~${(MAX_BODY_BYTES / 1024).toFixed(0)}KB). ` +
+            "Consider manually reducing the source asset dimensions or converting to a more efficient format.",
+          );
+        }
+      }
+    }
+
     const blobRaw = await ghProxy(`/repos/${OWNER}/${REPO}/git/blobs`, {
       method: "POST",
       body: JSON.stringify({
-        content: isText ? file.content.toString("utf8") : file.content.toString("base64"),
+        content: isText ? fileContent.toString("utf8") : fileContent.toString("base64"),
         encoding: isText ? "utf-8" : "base64",
       }),
     });
