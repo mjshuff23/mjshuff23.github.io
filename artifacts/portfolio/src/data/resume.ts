@@ -24,12 +24,12 @@ export const ABOUT = {
 export const SKILLS = resumeJson.skills.length > 0
   ? resumeJson.skills
   : [
-      { title: "AI & Research", skills: ["LLM APIs", "Prompt Engineering", "Ethical AI Systems", "Adversarial Testing", "Neuro-Symbolic Logic", "Fallacy Detection"] },
-      { title: "Languages", skills: ["JavaScript (ES6+)", "TypeScript", "Python", "SQL", "HTML/CSS"] },
-      { title: "Frontend", skills: ["React", "Next.js", "Redux", "Tailwind CSS", "Material-UI"] },
-      { title: "Backend & Data", skills: ["Node.js", "NestJS", "Express", "GraphQL", "PostgreSQL"] },
-      { title: "Infrastructure", skills: ["Docker", "AWS (CloudFormation, Lambda, S3)", "GitHub Actions", "CI/CD"] },
-      { title: "Testing & Methods", skills: ["Cypress", "Jest", "TDD", "Agile/Scrum", "Systems Architecture"] },
+      { title: "AI & Research", skills: [{ name: "LLM APIs", level: 4 }, { name: "Prompt Engineering", level: 5 }, { name: "Ethical AI Systems", level: 5 }, { name: "Adversarial Testing", level: 4 }, { name: "Neuro-Symbolic Logic", level: 4 }, { name: "Fallacy Detection", level: 4 }] },
+      { title: "Languages", skills: [{ name: "JavaScript (ES6+)", level: 5 }, { name: "TypeScript", level: 5 }, { name: "C", level: 4 }, { name: "Python", level: 4 }, { name: "SQL", level: 4 }, { name: "HTML/CSS", level: 5 }] },
+      { title: "Frontend", skills: [{ name: "React", level: 5 }, { name: "Next.js", level: 4 }, { name: "Redux", level: 4 }, { name: "Tailwind CSS", level: 4 }, { name: "Material-UI", level: 3 }] },
+      { title: "Backend & Data", skills: [{ name: "Node.js", level: 4 }, { name: "NestJS", level: 3 }, { name: "Express", level: 4 }, { name: "GraphQL", level: 3 }, { name: "PostgreSQL", level: 4 }] },
+      { title: "Infrastructure", skills: [{ name: "Docker", level: 3 }, { name: "AWS (CloudFormation, Lambda, S3)", level: 4 }, { name: "GitHub Actions", level: 4 }, { name: "CI/CD", level: 4 }] },
+      { title: "Testing & Methods", skills: [{ name: "Cypress", level: 4 }, { name: "Jest", level: 4 }, { name: "TDD", level: 4 }, { name: "Agile/Scrum", level: 4 }, { name: "Systems Architecture", level: 4 }] },
     ];
 
 export const EXPERIENCE = resumeJson.experience.length > 0
@@ -66,6 +66,17 @@ export const EXPERIENCE = resumeJson.experience.length > 0
           "Mentored 75+ graduates through technical interviews and DS&A whiteboarding",
           "Taught 70+ students ES6, OOP, and scalable full-stack development curriculum",
           "Reviewed hundreds of monthly projects, providing feedback on system design and debugging complex logic",
+        ],
+      },
+      {
+        title: "Electronics Technician",
+        company: "U.S. Navy",
+        date: "2001 – 2006",
+        bullets: [
+          "Maintained and troubleshot mission-critical shipboard electronics and communications systems under high-stakes operational conditions, where failure was not an option.",
+          "Diagnosed complex system failures in time-pressured environments, developing a disciplined fault-isolation methodology that translates directly to debugging distributed software systems.",
+          "Operated and serviced mission-critical navigation, radar, and communications equipment demanding zero-downtime reliability standards.",
+          "Cultivated rigorous attention to detail, procedural discipline, and composure under pressure — principles that underpin a career-long engineering standard of mission-critical reliability.",
         ],
       },
     ];
@@ -120,7 +131,7 @@ export const ECOSYSTEM_PROJECTS = [
   {
     title: "SocraBot",
     tagline: "Socratic AI for dialectical conversation",
-    description: "A real-time monitoring framework with a Fallacy Accumulation Scoring Model to detect sycophancy and reward-hacking. Reinforcement-tuned with logic/fallacy detection.",
+    description: "A real-time monitoring framework built around a Fallacy Accumulation Scoring Model. Employs reinforcement-tuned logic/fallacy detection to surface sycophancy, reward-hacking, and rhetorical manipulation in live AI conversations.",
     tags: ["Dialectic AI", "Fallacy Detection", "RL"],
     link: "https://www.figma.com/board/THRCAnzSeMAOIDTSQA92jJ/SocraBot-Fallacy-Accumulation-Scoring-Model",
   },

@@ -12,7 +12,7 @@
   },
   "about": {
     "bio": [
-      "Systems-focused builder with a 23-year technical trajectory rooted in a lifelong obsession with systems analysis and reverse-engineering, beginning in 1998. Complemented by 5+ years of professional leadership driving $30M+ in ARR through global-scale discovery platforms and scaling multi-continental retail infrastructure for the world’s largest brands. Leverages decades of systems-level intuition to prioritize deterministic integrity, currently specializing in AI Safeguards through the engineering of neuro-symbolic circuit breakers to mitigate deceptive model behaviors"
+      "Systems-focused builder with a 23-year technical trajectory rooted in a lifelong obsession with systems analysis and reverse-engineering, beginning in 1998. Complemented by 5+ years of professional leadership driving $30M+ in ARR through global-scale discovery platforms and scaling multi-continental retail infrastructure for the world's largest brands. Leverages decades of systems-level intuition to prioritize deterministic integrity, currently specializing in AI Safeguards through the engineering of neuro-symbolic circuit breakers to mitigate deceptive model behaviors"
     ],
     "stats": [
       {
@@ -37,59 +37,60 @@
     {
       "title": "Languages",
       "skills": [
-        "JavaScript (ES6+)",
-        "TypeScript",
-        "Python",
-        "SQL",
-        "HTML/CSS"
+        { "name": "JavaScript (ES6+)", "level": 5 },
+        { "name": "TypeScript", "level": 5 },
+        { "name": "C", "level": 4 },
+        { "name": "Python", "level": 4 },
+        { "name": "SQL", "level": 4 },
+        { "name": "HTML/CSS", "level": 5 }
       ]
     },
     {
       "title": "Frontend",
       "skills": [
-        "React",
-        "Next.js",
-        "Redux"
+        { "name": "React", "level": 5 },
+        { "name": "Next.js", "level": 4 },
+        { "name": "Redux", "level": 4 }
       ]
     },
     {
       "title": "Backend & Data",
       "skills": [
-        "Node.js",
-        "NestJS",
-        "Express",
-        "GraphQL"
+        { "name": "Node.js", "level": 4 },
+        { "name": "NestJS", "level": 3 },
+        { "name": "Express", "level": 4 },
+        { "name": "GraphQL", "level": 3 }
       ]
     },
     {
       "title": "Infrastructure",
       "skills": [
-        "Docker",
-        "AWS (CloudFormation, Lambda, S3, CloudWatch)",
-        "GitHub Actions",
-        "CI/CD"
+        { "name": "Docker", "level": 3 },
+        { "name": "AWS (CloudFormation, Lambda, S3, CloudWatch)", "level": 4 },
+        { "name": "GitHub Actions", "level": 4 },
+        { "name": "CI/CD", "level": 4 }
       ]
     },
     {
       "title": "Testing & Methods",
       "skills": [
-        "Cypress",
-        "Jest",
-        "TDD"
+        { "name": "Cypress", "level": 4 },
+        { "name": "Jest", "level": 4 },
+        { "name": "TDD", "level": 4 }
       ]
     },
     {
       "title": "AI & Research",
       "skills": [
-        "LLM APIs",
-        "Prompt Engineering",
-        "Ethical AI Systems"
+        { "name": "LLM APIs", "level": 4 },
+        { "name": "Prompt Engineering", "level": 5 },
+        { "name": "Ethical AI Systems", "level": 5 }
       ]
     },
     {
       "title": "Other",
       "skills": [
-        "Postgres"
+        { "name": "Postgres", "level": 4 }
       ]
     }
   ],
@@ -99,9 +100,9 @@
       "company": "Constructor.io",
       "date": "Dec 2022 - Nov 2025",
       "bullets": [
-        "Built real-time fitment POC that closed RealTruck after 7-month evaluation vs Algolia; client paid 5× Algolia’s rate.",
+        "Built real-time fitment POC that closed RealTruck after 7-month evaluation vs Algolia; client paid 5× Algolia's rate.",
         "Fitment system reused across CarParts, Classic Industries, and active POCs — foundational in $30M+ ARR conversion pipeline.",
-        "Created Constructor’s first B2B sandbox with fitment, now reused in multiple verticals",
+        "Created Constructor's first B2B sandbox with fitment, now reused in multiple verticals",
         "Lead Technical Architect for the first Hebrew/RTL search integration in Israel (Super-Pharm); engineered bidirectional personalization logic to maintain 100% catalog integrity across multi-million SKU pharmaceutical inventories.",
         "Bridged visibility gaps between engineering effort and revenue attribution; documented internal value contributions."
       ]
@@ -126,6 +127,17 @@
         "Mentored over 75 graduates for software engineering roles through technical interviews, DS&A whiteboarding, and architectural code walkthroughs.",
         "Taught over 70 students ES6, OOP, unit testing, and scalable full-stack development curriculum.",
         "Reviewed hundreds of monthly projects, providing feedback on system design and debugging complex logic, maintaining high student success."
+      ]
+    },
+    {
+      "title": "Electronics Technician",
+      "company": "U.S. Navy",
+      "date": "2001 – 2006",
+      "bullets": [
+        "Maintained and troubleshot mission-critical shipboard electronics and communications systems under high-stakes operational conditions, where failure was not an option.",
+        "Diagnosed complex system failures in time-pressured environments, developing a disciplined fault-isolation methodology that translates directly to debugging distributed software systems.",
+        "Operated and serviced mission-critical navigation, radar, and communications equipment demanding zero-downtime reliability standards.",
+        "Cultivated rigorous attention to detail, procedural discipline, and composure under pressure — principles that underpin a career-long engineering standard of mission-critical reliability."
       ]
     },
     {
