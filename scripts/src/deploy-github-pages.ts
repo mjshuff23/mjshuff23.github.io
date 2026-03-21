@@ -16,7 +16,7 @@ import path from "path";
 const OWNER = "mjshuff23";
 const REPO = "mjshuff23.github.io";
 const BRANCH = "main";
-const DIST_DIR = path.resolve(process.cwd(), "artifacts/portfolio/dist");
+const DIST_DIR = path.resolve(process.cwd(), "artifacts/portfolio/dist/public");
 
 const connectors = new ReplitConnectors();
 

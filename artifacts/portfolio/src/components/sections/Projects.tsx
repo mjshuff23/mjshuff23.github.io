@@ -1,46 +1,15 @@
 import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { ExternalLink, Database, Network, ShieldCheck, FileText } from "lucide-react";
+import { ESCO_PROJECT, ECOSYSTEM_PROJECTS } from "@/data/resume";
+
+const ECOSYSTEM_ICONS = [Network, Database, ShieldCheck, FileText, Database];
 
 export function Projects() {
-  const ecosystem = [
-    {
-      title: "SocraBot",
-      tagline: "Socratic AI for dialectical conversation",
-      description: "A real-time monitoring framework with a Fallacy Accumulation Scoring Model to detect sycophancy and reward-hacking. Reinforcement-tuned with logic/fallacy detection.",
-      tags: ["Dialectic AI", "Fallacy Detection", "RL"],
-      icon: Network,
-      link: "https://www.figma.com/board/THRCAnzSeMAOIDTSQA92jJ/SocraBot-Fallacy-Accumulation-Scoring-Model"
-    },
-    {
-      title: "Light Web",
-      tagline: "An ethical alternative digital space",
-      description: "Ad-free, community-oriented platform with chatrooms and embedded ethical AIs. Multi-agent system with sentiment analysis for moderation.",
-      tags: ["Decentralized Web", "Multi-Agent"],
-      icon: Database,
-    },
-    {
-      title: "MedBot",
-      tagline: "Medical research bias detector",
-      description: "Multi-layer NLP pipeline that ingests and grades medical studies for bias and methodological rigor by recursively analyzing citations.",
-      tags: ["NLP", "Bias Detection", "Citation Analysis"],
-      icon: ShieldCheck,
-    },
-    {
-      title: "BillBot",
-      tagline: "Government bill transparency analyzer",
-      description: "Analyzes legislation for incoherence, hidden agendas, or contradictions between bill titles and contents using Transformer-based semantic contrastive analysis.",
-      tags: ["Legal NLP", "Transparency"],
-      icon: FileText,
-    },
-    {
-      title: "ArchiveBot (DeepFile)",
-      tagline: "Declassified document intelligence",
-      description: "Parses and analyzes FOIA files. Downloads, OCRs, and semantically maps entities across documents, highlighting contradictions.",
-      tags: ["Document Intelligence", "FOIA"],
-      icon: Database,
-    }
-  ];
+  const ecosystem = ECOSYSTEM_PROJECTS.map((p, i) => ({
+    ...p,
+    icon: ECOSYSTEM_ICONS[i] ?? Database,
+  }));
 
   return (
     <section className="py-24" id="projects">
@@ -63,22 +32,22 @@ export function Projects() {
                   <span className="px-3 py-1 bg-primary/20 text-primary font-mono text-xs uppercase tracking-widest rounded-full border border-primary/30">
                     Featured Architecture
                   </span>
-                  <span className="text-muted-foreground font-mono text-sm">2024 - Present</span>
+                  <span className="text-muted-foreground font-mono text-sm">{ESCO_PROJECT.dateRange}</span>
                 </div>
                 <h3 className="text-3xl md:text-5xl font-display font-bold text-foreground uppercase">
-                  Project ESCO
+                  {ESCO_PROJECT.title}
                 </h3>
                 <p className="text-xl text-muted-foreground mt-2 font-light">
-                  Ethics, Sovereignty, and Coherence
+                  {ESCO_PROJECT.tagline}
                 </p>
               </div>
               <div className="text-left md:text-right">
-                <p className="text-primary font-mono">Founder & Lead Architect</p>
+                <p className="text-primary font-mono">{ESCO_PROJECT.role}</p>
               </div>
             </div>
 
             <p className="text-lg text-foreground/90 leading-relaxed mb-8 max-w-4xl">
-              A transparent, auditable AI safeguard framework. ESCO integrates a neuro-symbolic architecture that decouples the neural core from a deterministic Symbolic Ethics Layer. It maintains coherence and delivers truth in a user-chosen tone.
+              {ESCO_PROJECT.description}
             </p>
 
             <div className="grid md:grid-cols-2 gap-8 mb-10">
@@ -87,18 +56,14 @@ export function Projects() {
                   Sub-Projects & Scope
                 </h4>
                 <ul className="space-y-3">
-                  <li className="flex items-start gap-2">
-                    <div className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                    <span className="text-muted-foreground"><strong className="text-foreground">Neuro-Symbolic Safeguard & Ethics Gate:</strong> Hybrid AI framework with deterministic symbolic constraints.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <div className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                    <span className="text-muted-foreground"><strong className="text-foreground">Forensic Probing & Adversarial Research:</strong> Adversarial testing on frontier models (GPT-4o, Claude 3.5) to identify deceptive alignment.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <div className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                    <span className="text-muted-foreground"><strong className="text-foreground">Audit & Transparency Layer:</strong> Reasoning Trace Graphs and Immutable Decision Logs for forensic review.</span>
-                  </li>
+                  {ESCO_PROJECT.subProjects.map((sp) => (
+                    <li key={sp.title} className="flex items-start gap-2">
+                      <div className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                      <span className="text-muted-foreground">
+                        <strong className="text-foreground">{sp.title}:</strong> {sp.description}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
               </div>
 
@@ -106,25 +71,26 @@ export function Projects() {
                 <h4 className="font-display font-semibold text-lg text-primary uppercase border-b border-border pb-2">
                   System Blueprints (Figma)
                 </h4>
-                <div className="flex flex-col gap-3">
-                  <a href="https://www.figma.com/board/5mJ6fDzeAvRiH5VqXz6PCT/ESCO-Layered-Architecture-Map" target="_blank" rel="noreferrer" className="flex items-center justify-between p-3 rounded-md bg-secondary/50 hover:bg-primary/10 border border-transparent hover:border-primary/30 transition-all group">
-                    <span className="font-mono text-sm text-foreground group-hover:text-primary transition-colors">Layered Architecture Map</span>
-                    <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
-                  </a>
-                  <a href="https://www.figma.com/board/ytQZnXTlbivQE67RyA4h5m/ESCO-Cross-Domain-Architecture-Network" target="_blank" rel="noreferrer" className="flex items-center justify-between p-3 rounded-md bg-secondary/50 hover:bg-primary/10 border border-transparent hover:border-primary/30 transition-all group">
-                    <span className="font-mono text-sm text-foreground group-hover:text-primary transition-colors">Cross-Domain Network</span>
-                    <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
-                  </a>
-                  <a href="https://www.figma.com/board/N88czdXX6gDNbkP5c01Lq3/ESCO-System-Architecture-Map" target="_blank" rel="noreferrer" className="flex items-center justify-between p-3 rounded-md bg-secondary/50 hover:bg-primary/10 border border-transparent hover:border-primary/30 transition-all group">
-                    <span className="font-mono text-sm text-foreground group-hover:text-primary transition-colors">System Architecture Blueprint</span>
-                    <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
-                  </a>
+                <div className="grid grid-cols-2 gap-3">
+                  {ESCO_PROJECT.figmaBoards.map(({ label, img, href }) => (
+                    <a key={label} href={href} target="_blank" rel="noreferrer" className="group block rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-200">
+                      <div className="relative overflow-hidden bg-secondary/30 aspect-video">
+                        <img src={img} alt={label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <div className="absolute inset-0 bg-background/0 group-hover:bg-background/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <ExternalLink className="w-5 h-5 text-primary drop-shadow" />
+                        </div>
+                      </div>
+                      <div className="px-2 py-1.5 bg-secondary/30">
+                        <span className="font-mono text-[10px] text-muted-foreground group-hover:text-primary transition-colors uppercase tracking-wider">{label}</span>
+                      </div>
+                    </a>
+                  ))}
                 </div>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-2 pt-6 border-t border-border/50">
-              {["Neuro-Symbolic AI", "Ethics", "Adversarial Research", "Transparency"].map(tag => (
+              {ESCO_PROJECT.tags.map(tag => (
                 <span key={tag} className="px-3 py-1 bg-background text-muted-foreground font-mono text-xs rounded border border-border">
                   {tag}
                 </span>

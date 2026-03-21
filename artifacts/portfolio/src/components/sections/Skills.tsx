@@ -1,32 +1,6 @@
 import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
-
-const skillCategories = [
-  {
-    title: "AI & Research",
-    skills: ["LLM APIs", "Prompt Engineering", "Ethical AI Systems", "Adversarial Testing", "Neuro-Symbolic Logic", "Fallacy Detection"]
-  },
-  {
-    title: "Languages",
-    skills: ["JavaScript (ES6+)", "TypeScript", "Python", "SQL", "HTML/CSS"]
-  },
-  {
-    title: "Frontend",
-    skills: ["React", "Next.js", "Redux", "Tailwind CSS", "Material-UI"]
-  },
-  {
-    title: "Backend & Data",
-    skills: ["Node.js", "NestJS", "Express", "GraphQL", "PostgreSQL"]
-  },
-  {
-    title: "Infrastructure",
-    skills: ["Docker", "AWS (CloudFormation, Lambda, S3)", "GitHub Actions", "CI/CD"]
-  },
-  {
-    title: "Testing & Methods",
-    skills: ["Cypress", "Jest", "TDD", "Agile/Scrum", "Systems Architecture"]
-  }
-];
+import { SKILLS as skillCategories } from "@/data/resume";
 
 export function Skills() {
   const container = {

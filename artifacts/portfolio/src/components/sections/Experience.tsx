@@ -1,41 +1,6 @@
 import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
-
-const experiences = [
-  {
-    title: "IC2 Software Engineer",
-    company: "Constructor.io",
-    date: "Dec 2022 – Nov 2025",
-    bullets: [
-      "Built real-time fitment POC that closed RealTruck (5× Algolia's rate) after a 7-month evaluation",
-      "Fitment system foundational in $30M+ ARR conversion pipeline (CarParts, Classic Industries)",
-      "Created Constructor's first B2B sandbox with fitment, reused across multiple verticals",
-      "Lead Technical Architect for first Hebrew/RTL search integration in Israel (Super-Pharm)",
-      "Bridged visibility gaps between engineering effort and revenue attribution"
-    ]
-  },
-  {
-    title: "Associate Software Engineer / CRE",
-    company: "Vault Health",
-    date: "Mar 2022 – Sept 2022",
-    bullets: [
-      "Deployed DevOps SOPs for monitoring and prioritizing escalation tickets across all engineering teams",
-      "Monitored AWS Lambdas, SQS Queues, S3 via CloudWatch Log Groups to ensure system high availability",
-      "Designed clinical research platform using Next.js, TypeScript, Redux Toolkit, and Material-UI",
-      "Automated full end-to-end testing with Jest and Cypress"
-    ]
-  },
-  {
-    title: "Technical Career Coach & Instructional Assistant",
-    company: "App Academy",
-    date: "Jan 2021 – Feb 2022",
-    bullets: [
-      "Mentored 75+ graduates through technical interviews and DS&A whiteboarding",
-      "Taught 70+ students ES6, OOP, and scalable full-stack development curriculum",
-      "Reviewed hundreds of monthly projects, providing feedback on system design and debugging complex logic"
-    ]
-  }
-];
+import { EXPERIENCE as experiences } from "@/data/resume";
 
 export function Experience() {
   return (

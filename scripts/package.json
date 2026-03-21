@@ -6,6 +6,7 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "deploy:gh-pages": "tsx ./src/deploy-github-pages.ts",
+    "fetch:resume": "tsx ./src/fetch-resume-data.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {

@@ -1,0 +1,219 @@
+/**
+ * Resume data — sourced from Michael Shuff's AI-Focused Resume on Google Docs:
+ * https://docs.google.com/document/d/1B2KtRocWTPhkZwgTxw69VK_FLKXmvhOeXGxCmQ_V76Y
+ *
+ * To refresh this file from the live Google Doc, run:
+ *   pnpm --filter @workspace/scripts run fetch:resume
+ *
+ * Data last synced: 2026-03-21
+ */
+
+export const PERSONAL = {
+  name: "Michael Shuff",
+  title: "Staff Systems Architect | AI Safeguards & Adversarial Researcher",
+  email: "mjshuff23@gmail.com",
+  phone: "(830) 734-0549",
+  github: "https://github.com/mjshuff23",
+  googleDocResume:
+    "https://docs.google.com/document/d/1B2KtRocWTPhkZwgTxw69VK_FLKXmvhOeXGxCmQ_V76Y",
+} as const;
+
+export const ABOUT = {
+  bio: [
+    {
+      highlight: "23-year technical trajectory",
+      text: "Systems-focused builder with a {highlight} rooted in a lifelong obsession with systems analysis and reverse-engineering, beginning in 1998.",
+    },
+    {
+      text: "Complemented by 5+ years of professional leadership driving $30M+ in ARR through global-scale discovery platforms and scaling multi-continental retail infrastructure for the world's largest brands.",
+    },
+    {
+      highlight: "neuro-symbolic circuit breakers",
+      text: "Leverages decades of systems-level intuition to prioritize deterministic integrity, currently specializing in AI Safeguards through the engineering of {highlight} to mitigate deceptive model behaviors.",
+    },
+  ],
+  stats: [
+    { label: "Technical Experience", value: "23+ Years" },
+    { label: "ARR Impact", value: "$30M+" },
+    { label: "Engineers Mentored", value: "75+" },
+    { label: "Specialization", value: "AI Safeguards" },
+  ],
+};
+
+export const SKILLS = [
+  {
+    title: "AI & Research",
+    skills: [
+      "LLM APIs",
+      "Prompt Engineering",
+      "Ethical AI Systems",
+      "Adversarial Testing",
+      "Neuro-Symbolic Logic",
+      "Fallacy Detection",
+    ],
+  },
+  {
+    title: "Languages",
+    skills: ["JavaScript (ES6+)", "TypeScript", "Python", "SQL", "HTML/CSS"],
+  },
+  {
+    title: "Frontend",
+    skills: ["React", "Next.js", "Redux", "Tailwind CSS", "Material-UI"],
+  },
+  {
+    title: "Backend & Data",
+    skills: ["Node.js", "NestJS", "Express", "GraphQL", "PostgreSQL"],
+  },
+  {
+    title: "Infrastructure",
+    skills: [
+      "Docker",
+      "AWS (CloudFormation, Lambda, S3)",
+      "GitHub Actions",
+      "CI/CD",
+    ],
+  },
+  {
+    title: "Testing & Methods",
+    skills: [
+      "Cypress",
+      "Jest",
+      "TDD",
+      "Agile/Scrum",
+      "Systems Architecture",
+    ],
+  },
+];
+
+export const EXPERIENCE = [
+  {
+    title: "IC2 Software Engineer",
+    company: "Constructor.io",
+    date: "Dec 2022 – Nov 2025",
+    bullets: [
+      "Built real-time fitment POC that closed RealTruck (5× Algolia's rate) after a 7-month evaluation",
+      "Fitment system foundational in $30M+ ARR conversion pipeline (CarParts, Classic Industries)",
+      "Created Constructor's first B2B sandbox with fitment, reused across multiple verticals",
+      "Lead Technical Architect for first Hebrew/RTL search integration in Israel (Super-Pharm)",
+      "Bridged visibility gaps between engineering effort and revenue attribution",
+    ],
+  },
+  {
+    title: "Associate Software Engineer / CRE",
+    company: "Vault Health",
+    date: "Mar 2022 – Sept 2022",
+    bullets: [
+      "Deployed DevOps SOPs for monitoring and prioritizing escalation tickets across all engineering teams",
+      "Monitored AWS Lambdas, SQS Queues, S3 via CloudWatch Log Groups to ensure system high availability",
+      "Designed clinical research platform using Next.js, TypeScript, Redux Toolkit, and Material-UI",
+      "Automated full end-to-end testing with Jest and Cypress",
+    ],
+  },
+  {
+    title: "Technical Career Coach & Instructional Assistant",
+    company: "App Academy",
+    date: "Jan 2021 – Feb 2022",
+    bullets: [
+      "Mentored 75+ graduates through technical interviews and DS&A whiteboarding",
+      "Taught 70+ students ES6, OOP, and scalable full-stack development curriculum",
+      "Reviewed hundreds of monthly projects, providing feedback on system design and debugging complex logic",
+    ],
+  },
+];
+
+export const ESCO_PROJECT = {
+  title: "Project ESCO",
+  tagline: "Ethics, Sovereignty, and Coherence",
+  dateRange: "2024 - Present",
+  role: "Founder & Lead Architect",
+  description:
+    "A transparent, auditable AI safeguard framework. ESCO integrates a neuro-symbolic architecture that decouples the neural core from a deterministic Symbolic Ethics Layer. It maintains coherence and delivers truth in a user-chosen tone.",
+  subProjects: [
+    {
+      title: "Neuro-Symbolic Safeguard & Ethics Gate",
+      description:
+        "Hybrid AI framework with deterministic symbolic constraints.",
+    },
+    {
+      title: "Forensic Probing & Adversarial Research",
+      description:
+        "Adversarial testing on frontier models (GPT-4o, Claude 3.5) to identify deceptive alignment.",
+    },
+    {
+      title: "Audit & Transparency Layer",
+      description:
+        "Reasoning Trace Graphs and Immutable Decision Logs for forensic review.",
+    },
+  ],
+  figmaBoards: [
+    {
+      label: "Layered Architecture Map",
+      href: "https://www.figma.com/board/5mJ6fDzeAvRiH5VqXz6PCT/ESCO-Layered-Architecture-Map",
+      img: "/images/esco-layered-architecture.png",
+    },
+    {
+      label: "Cross-Domain Network",
+      href: "https://www.figma.com/board/ytQZnXTlbivQE67RyA4h5m/ESCO-Cross-Domain-Architecture-Network",
+      img: "/images/esco-cross-domain-architecture.png",
+    },
+    {
+      label: "System Architecture",
+      href: "https://www.figma.com/board/N88czdXX6gDNbkP5c01Lq3/ESCO-System-Architecture-Map",
+      img: "/images/esco-system-architecture.png",
+    },
+    {
+      label: "SocraBot Fallacy Model",
+      href: "https://www.figma.com/board/THRCAnzSeMAOIDTSQA92jJ/SocraBot-Fallacy-Accumulation-Scoring-Model",
+      img: "/images/socrabot-fallacy-model.png",
+    },
+  ],
+  tags: [
+    "Neuro-Symbolic AI",
+    "Ethics",
+    "Adversarial Research",
+    "Transparency",
+  ],
+};
+
+export const ECOSYSTEM_PROJECTS = [
+  {
+    title: "SocraBot",
+    tagline: "Socratic AI for dialectical conversation",
+    description:
+      "A real-time monitoring framework with a Fallacy Accumulation Scoring Model to detect sycophancy and reward-hacking. Reinforcement-tuned with logic/fallacy detection.",
+    tags: ["Dialectic AI", "Fallacy Detection", "RL"],
+    link: "https://www.figma.com/board/THRCAnzSeMAOIDTSQA92jJ/SocraBot-Fallacy-Accumulation-Scoring-Model",
+  },
+  {
+    title: "Light Web",
+    tagline: "An ethical alternative digital space",
+    description:
+      "Ad-free, community-oriented platform with chatrooms and embedded ethical AIs. Multi-agent system with sentiment analysis for moderation.",
+    tags: ["Decentralized Web", "Multi-Agent"],
+    link: null,
+  },
+  {
+    title: "MedBot",
+    tagline: "Medical research bias detector",
+    description:
+      "Multi-layer NLP pipeline that ingests and grades medical studies for bias and methodological rigor by recursively analyzing citations.",
+    tags: ["NLP", "Bias Detection", "Citation Analysis"],
+    link: null,
+  },
+  {
+    title: "BillBot",
+    tagline: "Government bill transparency analyzer",
+    description:
+      "Analyzes legislation for incoherence, hidden agendas, or contradictions between bill titles and contents using Transformer-based semantic contrastive analysis.",
+    tags: ["Legal NLP", "Transparency"],
+    link: null,
+  },
+  {
+    title: "ArchiveBot (DeepFile)",
+    tagline: "Declassified document intelligence",
+    description:
+      "Parses and analyzes FOIA files. Downloads, OCRs, and semantically maps entities across documents, highlighting contradictions.",
+    tags: ["Document Intelligence", "FOIA"],
+    link: null,
+  },
+];
