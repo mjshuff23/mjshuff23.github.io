@@ -1,0 +1,16 @@
+  - name: Install dependencies
+    run: pnpm install --no-frozen-lockfile
+
+  - name: Build portfolio
+    run: pnpm --filter @workspace/portfolio run build
+    env:
+      PORT: 3000
+      BASE_PATH: /
+
+  - name: Deploy to GitHub Pages
+    uses: peaceiris/actions-gh-pages@v3
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      publish_dir: ./artifacts/portfolio/dist/public
+      external_repository: mjshuff23/mjshuff23.github.io
+      publish_branch: gh-pages
