@@ -84,16 +84,18 @@ export function Navbar() {
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
                   </a>
 
-                  <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-3 w-56 -translate-x-1/2 rounded-xl border border-white/10 bg-card/95 p-2 opacity-0 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-md transition-all duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
-                    {resolvedProjectLinks.map((projectLink) => (
-                      <a
-                        key={projectLink.name}
-                        href={projectLink.href}
-                        className="block rounded-lg px-3 py-2 font-display text-sm uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                      >
-                        {projectLink.name}
-                      </a>
-                    ))}
+                  <div className="pointer-events-none absolute left-1/2 top-full z-50 w-56 -translate-x-1/2 pt-3 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
+                    <div className="rounded-xl border border-white/10 bg-card/95 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-md">
+                      {resolvedProjectLinks.map((projectLink) => (
+                        <a
+                          key={projectLink.name}
+                          href={projectLink.href}
+                          className="block rounded-lg px-3 py-2 font-display text-sm uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                        >
+                          {projectLink.name}
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
               );
