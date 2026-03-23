@@ -6,6 +6,7 @@ import { ESCO_PROJECT, ECOSYSTEM_PROJECTS } from "@/data/resume";
 import { PremiumButton } from "@/components/ui/PremiumButton";
 
 const ECOSYSTEM_ICONS = [Network, Database, ShieldCheck, FileText, Database];
+const staticChaosPreview = `${import.meta.env.BASE_URL}images/static-chaos.png`;
 
 export function Projects() {
   const ecosystem = ECOSYSTEM_PROJECTS.map((p, i) => ({
@@ -23,6 +24,7 @@ export function Projects() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          id="esco"
           className="mb-16 glass-panel rounded-2xl overflow-hidden box-glow border border-primary/20 relative"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
@@ -153,67 +155,92 @@ export function Projects() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
+          id="static-chaos-project"
           className="mt-16 rounded-2xl border border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 p-8 md:p-10"
         >
-          <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-end">
-            <div className="space-y-5">
-              <div className="flex items-center gap-3">
-                <TerminalSquare className="h-6 w-6 text-primary" />
-                <span className="font-mono text-xs uppercase tracking-[0.3em] text-primary">
-                  Live Systems Demo
+          <div className="grid gap-8 lg:grid-cols-[1.3fr_0.9fr] lg:items-stretch">
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#071118] shadow-[0_20px_70px_rgba(0,0,0,0.32)]">
+              <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                <div className="flex items-center gap-3">
+                  <TerminalSquare className="h-5 w-5 text-primary" />
+                  <span className="font-mono text-xs uppercase tracking-[0.26em] text-primary">
+                    Translation Study
+                  </span>
+                </div>
+                <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                  Live C to TS Bridge
                 </span>
               </div>
-
-              <div className="space-y-3">
-                <h3 className="text-3xl font-display font-bold uppercase text-foreground md:text-4xl">
-                  Static Chaos
-                </h3>
-                <p className="max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-                  A legacy C MUD I use to study lower-level abstraction by translating it
-                  into TypeScript and browser tooling I already understand. The live page
-                  shows the bridge itself: raw TCP underneath, a TypeScript wrapper in the
-                  middle, and a recruiter-friendly terminal on top.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {["C", "TypeScript", "Protocol Translation", "Railway", "WebSocket Gateway"].map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded border border-border bg-background px-3 py-1 font-mono text-xs text-muted-foreground"
-                  >
-                    {tag}
-                  </span>
-                ))}
+              <div className="relative aspect-[16/10] overflow-hidden">
+                <img
+                  src={staticChaosPreview}
+                  alt="Static Chaos live terminal preview"
+                  className="h-full w-full object-cover object-top transition-transform duration-500 hover:scale-[1.02]"
+                />
+                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(7,17,24,0.92)_100%)]" />
               </div>
             </div>
 
-            <div className="space-y-4 rounded-xl border border-white/10 bg-background/70 p-5 backdrop-blur-sm">
-              <div className="flex items-center gap-3 text-sm font-mono uppercase tracking-[0.2em] text-primary">
-                <RadioTower className="h-4 w-4" />
-                Live Access
+            <div className="flex flex-col justify-between gap-6">
+              <div className="space-y-5">
+                <div className="flex items-center gap-3">
+                  <RadioTower className="h-5 w-5 text-primary" />
+                  <span className="font-mono text-xs uppercase tracking-[0.3em] text-primary">
+                    Live Systems Demo
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-3xl font-display font-bold uppercase text-foreground md:text-4xl">
+                    Static Chaos
+                  </h3>
+                  <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
+                    A legacy C MUD I use to study lower-level abstraction by translating it
+                    into TypeScript and browser tooling I already understand. The live page
+                    shows the bridge itself: raw TCP underneath, a TypeScript wrapper in the
+                    middle, and a recruiter-friendly terminal on top.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {["C", "TypeScript", "Protocol Translation", "Railway", "WebSocket Gateway"].map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded border border-border bg-background px-3 py-1 font-mono text-xs text-muted-foreground"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Open the dedicated page to inspect the architecture story and use the live
-                terminal running through the Railway gateway.
-              </p>
-              <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-                <Link href="/staticchaos">
-                  <a>
-                    <PremiumButton className="w-full gap-2">
-                      Launch Demo <ArrowRight className="h-4 w-4" />
+
+              <div className="space-y-4 rounded-xl border border-white/10 bg-background/70 p-5 backdrop-blur-sm">
+                <div className="flex items-center gap-3 text-sm font-mono uppercase tracking-[0.2em] text-primary">
+                  <RadioTower className="h-4 w-4" />
+                  Live Access
+                </div>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Open the dedicated page to inspect the architecture story and use the live
+                  terminal running through the Railway gateway.
+                </p>
+                <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+                  <Link href="/staticchaos">
+                    <a>
+                      <PremiumButton className="w-full gap-2">
+                        Launch Demo <ArrowRight className="h-4 w-4" />
+                      </PremiumButton>
+                    </a>
+                  </Link>
+                  <a
+                    href="https://github.com/mjshuff23/staticchaos"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <PremiumButton variant="outline" className="w-full gap-2">
+                      View Source <ExternalLink className="h-4 w-4" />
                     </PremiumButton>
                   </a>
-                </Link>
-                <a
-                  href="https://github.com/mjshuff23/staticchaos"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <PremiumButton variant="outline" className="w-full gap-2">
-                    View Source <ExternalLink className="h-4 w-4" />
-                  </PremiumButton>
-                </a>
+                </div>
               </div>
             </div>
           </div>

@@ -460,8 +460,8 @@ export default function StaticChaos() {
                   </div>
                 </div>
 
-                <div className="relative min-h-[36rem] bg-[linear-gradient(180deg,rgba(72,240,210,0.03),transparent_22%),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:auto,28px_28px,28px_28px] md:min-h-[40rem]">
-                  <div ref={terminalHostRef} className="static-chaos-terminal h-[36rem] w-full p-3 md:h-[40rem] md:p-4" />
+                <div className="relative min-h-[34rem] bg-[linear-gradient(180deg,rgba(72,240,210,0.03),transparent_22%),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:auto,28px_28px,28px_28px] md:min-h-[38rem]">
+                  <div ref={terminalHostRef} className="static-chaos-terminal h-[34rem] w-full p-3 md:h-[38rem] md:p-4" />
                 </div>
               </motion.section>
 

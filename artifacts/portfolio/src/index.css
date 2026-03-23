@@ -175,10 +175,6 @@
   pointer-events: none;
 }
 
-.static-chaos-terminal .xterm {
-  padding-bottom: 10px;
-}
-
 .static-chaos-terminal .xterm-viewport {
   overscroll-behavior: contain;
   scrollbar-color: hsl(var(--primary) / 0.55) transparent;
