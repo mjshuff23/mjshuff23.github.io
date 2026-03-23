@@ -156,6 +156,40 @@ export default function StaticChaos() {
       currentInputRef.current = nextInput;
     };
 
+    const browseHistory = (direction: "up" | "down") => {
+      const history = commandHistoryRef.current;
+      if (history.length === 0) {
+        return false;
+      }
+
+      if (direction === "up") {
+        if (historyIndexRef.current === null) {
+          historyDraftRef.current = currentInputRef.current;
+          historyIndexRef.current = history.length - 1;
+        } else if (historyIndexRef.current > 0) {
+          historyIndexRef.current -= 1;
+        }
+
+        replaceCurrentInput(history[historyIndexRef.current] ?? "");
+        return true;
+      }
+
+      if (historyIndexRef.current === null) {
+        return false;
+      }
+
+      if (historyIndexRef.current < history.length - 1) {
+        historyIndexRef.current += 1;
+        replaceCurrentInput(history[historyIndexRef.current] ?? "");
+        return true;
+      }
+
+      historyIndexRef.current = null;
+      replaceCurrentInput(historyDraftRef.current);
+      historyDraftRef.current = "";
+      return true;
+    };
+
     terminal.attachCustomKeyEventHandler((event) => {
       if (event.type !== "keydown" || !localEchoRef.current) {
         return true;
@@ -165,42 +199,15 @@ export default function StaticChaos() {
         return true;
       }
 
-      const history = commandHistoryRef.current;
       if (event.key === "ArrowUp") {
         event.preventDefault();
-
-        if (history.length === 0) {
-          return false;
-        }
-
-        if (historyIndexRef.current === null) {
-          historyDraftRef.current = currentInputRef.current;
-          historyIndexRef.current = history.length - 1;
-        } else if (historyIndexRef.current > 0) {
-          historyIndexRef.current -= 1;
-        }
-
-        const nextCommand = history[historyIndexRef.current] ?? "";
-        replaceCurrentInput(nextCommand);
+        browseHistory("up");
         return false;
       }
 
       if (event.key === "ArrowDown") {
         event.preventDefault();
-
-        if (history.length === 0 || historyIndexRef.current === null) {
-          return false;
-        }
-
-        if (historyIndexRef.current < history.length - 1) {
-          historyIndexRef.current += 1;
-          replaceCurrentInput(history[historyIndexRef.current] ?? "");
-          return false;
-        }
-
-        historyIndexRef.current = null;
-        replaceCurrentInput(historyDraftRef.current);
-        historyDraftRef.current = "";
+        browseHistory("down");
         return false;
       }
 
@@ -284,6 +291,18 @@ export default function StaticChaos() {
       const disposable = terminal.onData((value) => {
         if (socket.readyState !== WebSocket.OPEN) {
           return;
+        }
+
+        if (localEchoRef.current) {
+          if (value === "\u001b[A") {
+            browseHistory("up");
+            return;
+          }
+
+          if (value === "\u001b[B") {
+            browseHistory("down");
+            return;
+          }
         }
 
         if (localEchoRef.current) {
