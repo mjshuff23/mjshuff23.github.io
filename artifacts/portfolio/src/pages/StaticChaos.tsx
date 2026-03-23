@@ -71,6 +71,7 @@ export default function StaticChaos() {
     const terminal = new Terminal({
       cursorBlink: true,
       convertEol: false,
+      scrollOnUserInput: true,
       fontFamily:
         '"Cascadia Mono", "Fira Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
       fontSize: 13,
@@ -96,11 +97,21 @@ export default function StaticChaos() {
     terminal.loadAddon(fitAddon);
     terminal.open(mountNode);
 
+    let viewportSyncTimer: number | null = null;
+
     const scheduleFit = () => {
-      window.requestAnimationFrame(() => {
-        fitAddon.fit();
-        terminal.scrollToBottom();
-      });
+      if (viewportSyncTimer !== null) {
+        window.clearTimeout(viewportSyncTimer);
+      }
+
+      viewportSyncTimer = window.setTimeout(() => {
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            fitAddon.fit();
+            terminal.scrollToBottom();
+          });
+        });
+      }, 32);
     };
 
     scheduleFit();
@@ -203,6 +214,9 @@ export default function StaticChaos() {
     window.addEventListener("resize", handleResize);
 
     return () => {
+      if (viewportSyncTimer !== null) {
+        window.clearTimeout(viewportSyncTimer);
+      }
       window.removeEventListener("resize", handleResize);
       resizeObserver.disconnect();
       disconnect?.();
@@ -291,7 +305,7 @@ export default function StaticChaos() {
                 </div>
 
                 <div className="relative min-h-[36rem] bg-[linear-gradient(180deg,rgba(72,240,210,0.03),transparent_22%),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:auto,28px_28px,28px_28px] md:min-h-[40rem]">
-                  <div ref={terminalHostRef} className="h-[36rem] w-full p-3 md:h-[40rem] md:p-4" />
+                  <div ref={terminalHostRef} className="static-chaos-terminal h-[36rem] w-full p-3 md:h-[40rem] md:p-4" />
                 </div>
               </motion.section>
 

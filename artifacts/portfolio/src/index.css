@@ -162,3 +162,17 @@
     @apply bg-card/60 backdrop-blur-md border border-white/10 dark:border-white/5;
   }
 }
+
+.static-chaos-terminal,
+.static-chaos-terminal * {
+  user-select: none;
+}
+
+.static-chaos-terminal .xterm {
+  padding-bottom: 10px;
+}
+
+.static-chaos-terminal .xterm-viewport {
+  overscroll-behavior: contain;
+  scrollbar-color: hsl(var(--primary) / 0.55) transparent;
+}
