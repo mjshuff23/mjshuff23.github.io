@@ -169,15 +169,15 @@ export function Projects() {
                   Static Chaos
                 </h3>
                 <p className="max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-                  A legacy C MUD revived with a modern deployment path, a browser-safe
-                  WebSocket gateway, and a recruiter-friendly live terminal. This is the
-                  systems side of my work in one click: runtime constraints, protocol
-                  conversion, and a usable frontend handoff.
+                  A legacy C MUD I use to study lower-level abstraction by translating it
+                  into TypeScript and browser tooling I already understand. The live page
+                  shows the bridge itself: raw TCP underneath, a TypeScript wrapper in the
+                  middle, and a recruiter-friendly terminal on top.
                 </p>
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {["C", "Docker", "Railway", "WebSocket Proxy", "Portfolio Integration"].map((tag) => (
+                {["C", "TypeScript", "Protocol Translation", "Railway", "WebSocket Gateway"].map((tag) => (
                   <span
                     key={tag}
                     className="rounded border border-border bg-background px-3 py-1 font-mono text-xs text-muted-foreground"

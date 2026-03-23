@@ -397,10 +397,10 @@ export default function StaticChaos() {
               transition={{ duration: 0.5 }}
               className="mb-12 flex flex-col gap-6"
             >
-              <Link href="/">
+              <Link href="/#projects">
                 <a className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.24em] text-muted-foreground transition-colors hover:text-primary">
                   <ArrowLeft className="h-4 w-4" />
-                  Back To Portfolio
+                  Back To Projects
                 </a>
               </Link>
 
@@ -408,7 +408,7 @@ export default function StaticChaos() {
                 <div className="flex flex-wrap items-center gap-3">
                   <StatusPill status={status} />
                   <span className="font-mono text-xs uppercase tracking-[0.24em] text-primary">
-                    Legacy C Runtime + WebSocket Conversion
+                    C Runtime + TypeScript Translation Layer
                   </span>
                 </div>
 
@@ -417,8 +417,9 @@ export default function StaticChaos() {
                 </h1>
 
                 <p className="max-w-3xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-                  A live browser entry point into a classic MUD I brought forward with containerized deployment,
-                  a Railway runtime, and a protocol bridge that converts raw TCP into a browser-safe WebSocket session.
+                  This project is how I study lower-level systems from a full-stack angle: reading a legacy C MUD,
+                  wrapping pieces of it in TypeScript, and translating raw runtime behavior into abstractions I already
+                  understand from modern web engineering.
                 </p>
               </div>
             </motion.div>
@@ -472,23 +473,39 @@ export default function StaticChaos() {
               >
                 <section className="rounded-[24px] border border-border bg-card/70 p-6 backdrop-blur-sm">
                   <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-primary">
-                    What This Shows
+                    Why This Project Exists
                   </p>
                   <ul className="space-y-3 text-sm leading-relaxed text-muted-foreground">
-                    <li>The backend remains a raw TCP service instead of pretending to be a web app.</li>
-                    <li>A dedicated WebSocket gateway translates browser traffic without changing the game server.</li>
-                    <li>The live page turns a portfolio case study into something recruiters can actually interact with.</li>
+                    <li>I use the original C codebase to understand lower-level state, memory-oriented design, and tighter runtime constraints.</li>
+                    <li>The TypeScript wrapper and browser gateway let me translate those ideas into abstractions I already know as a full-stack engineer.</li>
+                    <li>The live demo is there to make that translation visible instead of keeping it as a private code-reading exercise.</li>
                   </ul>
                 </section>
 
                 <section className="rounded-[24px] border border-border bg-card/70 p-6 backdrop-blur-sm">
                   <p className="mb-4 font-mono text-xs uppercase tracking-[0.22em] text-primary">
-                    Connection Notes
+                    Translation Layers
                   </p>
                   <div className="space-y-4 text-sm text-muted-foreground">
                     <div>
                       <p className="mb-1 font-display text-base font-semibold uppercase text-foreground">
-                        Browser Gateway
+                        Legacy Core
+                      </p>
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        The game server remains a C MUD with raw TCP semantics and its original runtime model.
+                      </p>
+                    </div>
+                    <div>
+                      <p className="mb-1 font-display text-base font-semibold uppercase text-foreground">
+                        TypeScript Bridge
+                      </p>
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        A TypeScript WebSocket gateway translates browser traffic without rewriting the underlying server.
+                      </p>
+                    </div>
+                    <div>
+                      <p className="mb-1 font-display text-base font-semibold uppercase text-foreground">
+                        Browser Endpoint
                       </p>
                       <p className="break-all font-mono text-xs text-muted-foreground/90">
                         {SOCKET_URL}
@@ -516,10 +533,10 @@ export default function StaticChaos() {
                         <Github className="h-4 w-4" />
                       </PremiumButton>
                     </a>
-                    <Link href="/">
+                    <Link href="/#projects">
                       <a>
                         <PremiumButton className="w-full justify-between gap-2">
-                          Return To Main Portfolio
+                          Return To Projects
                           <ArrowRight className="h-4 w-4" />
                         </PremiumButton>
                       </a>

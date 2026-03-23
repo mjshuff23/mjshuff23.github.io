@@ -19,6 +19,10 @@ export function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const [location] = useLocation();
   const isStaticChaosPage = location === "/staticchaos";
+  const resolvedNavLinks = navLinks.map((link) => ({
+    ...link,
+    href: isStaticChaosPage ? `/${link.href}` : link.href,
+  }));
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,24 +61,16 @@ export function Navbar() {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8">
-          {!isStaticChaosPage &&
-            navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-sm font-display font-medium uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors relative group"
-              >
-                {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
-              </a>
-            ))}
-
-          <Link href="/staticchaos">
-            <a className="text-sm font-display font-medium uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors relative group">
-              Static Chaos
+          {resolvedNavLinks.map((link) => (
+            <a
+              key={link.name}
+              href={link.href}
+              className="text-sm font-display font-medium uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors relative group"
+            >
+              {link.name}
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
             </a>
-          </Link>
+          ))}
           
           <button
             onClick={toggleTheme}
@@ -113,25 +109,16 @@ export function Navbar() {
             className="md:hidden glass-panel border-b border-white/10"
           >
             <div className="px-4 py-6 flex flex-col gap-4">
-              <Link href="/staticchaos">
+              {resolvedNavLinks.map((link) => (
                 <a
+                  key={link.name}
+                  href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className="text-base font-display font-medium uppercase tracking-widest text-foreground hover:text-primary px-4 py-2 rounded-md hover:bg-primary/10 transition-colors"
                 >
-                  Static Chaos
+                  {link.name}
                 </a>
-              </Link>
-              {!isStaticChaosPage &&
-                navLinks.map((link) => (
-                  <a
-                    key={link.name}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-base font-display font-medium uppercase tracking-widest text-foreground hover:text-primary px-4 py-2 rounded-md hover:bg-primary/10 transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                ))}
+              ))}
             </div>
           </motion.div>
         )}
