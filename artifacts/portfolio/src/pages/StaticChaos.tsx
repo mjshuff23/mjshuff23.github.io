@@ -95,7 +95,15 @@ export default function StaticChaos() {
     const fitAddon = new FitAddon();
     terminal.loadAddon(fitAddon);
     terminal.open(mountNode);
-    fitAddon.fit();
+
+    const scheduleFit = () => {
+      window.requestAnimationFrame(() => {
+        fitAddon.fit();
+        terminal.scrollToBottom();
+      });
+    };
+
+    scheduleFit();
     terminal.focus();
     terminal.writeln("\x1b[36m[static-chaos]\x1b[0m Booting remote terminal...");
     terminal.writeln("");
@@ -120,11 +128,13 @@ export default function StaticChaos() {
         setStatus("connected");
         setStatusMessage("Connected. Type directly into the terminal.");
         terminal.writeln("\x1b[32m[bridge]\x1b[0m Connected.\r\n");
+        scheduleFit();
       };
 
       socket.onmessage = (event) => {
         if (typeof event.data === "string") {
           terminal.write(event.data);
+          scheduleFit();
           return;
         }
 
@@ -144,6 +154,7 @@ export default function StaticChaos() {
         if (parsed.text.length > 0) {
           const text = new TextDecoder().decode(parsed.text);
           terminal.write(text);
+          scheduleFit();
         }
       };
 
@@ -175,13 +186,25 @@ export default function StaticChaos() {
     const disconnect = connect();
 
     const handleResize = () => {
-      fitAddon.fit();
+      scheduleFit();
     };
+
+    const resizeObserver = new ResizeObserver(() => {
+      scheduleFit();
+    });
+    resizeObserver.observe(mountNode);
+
+    if ("fonts" in document) {
+      void document.fonts.ready.then(() => {
+        scheduleFit();
+      });
+    }
 
     window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
       disconnect?.();
       socketRef.current = null;
       terminal.dispose();
