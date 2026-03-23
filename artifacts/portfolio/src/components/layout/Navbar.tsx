@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Moon, Sun, Terminal } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
+import { Link, useLocation } from "wouter";
 
 const navLinks = [
   { name: "About", href: "#about" },
@@ -16,6 +17,8 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const [location] = useLocation();
+  const isStaticChaosPage = location === "/staticchaos";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,29 +43,38 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         
         {/* Logo */}
-        <a 
-          href="#" 
-          className="group flex items-center gap-2 text-foreground hover:text-primary transition-colors"
-          data-testid="link-home"
-        >
-          <Terminal className="w-6 h-6 text-primary group-hover:animate-pulse" />
-          <span className="font-display font-bold text-xl tracking-wider uppercase">
-            M.SHUFF<span className="text-primary animate-pulse">_</span>
-          </span>
-        </a>
+        <Link href="/">
+          <a
+            className="group flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+            data-testid="link-home"
+          >
+            <Terminal className="w-6 h-6 text-primary group-hover:animate-pulse" />
+            <span className="font-display font-bold text-xl tracking-wider uppercase">
+              M.SHUFF<span className="text-primary animate-pulse">_</span>
+            </span>
+          </a>
+        </Link>
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              className="text-sm font-display font-medium uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors relative group"
-            >
-              {link.name}
+          {!isStaticChaosPage &&
+            navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                className="text-sm font-display font-medium uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors relative group"
+              >
+                {link.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
+              </a>
+            ))}
+
+          <Link href="/staticchaos">
+            <a className="text-sm font-display font-medium uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors relative group">
+              Static Chaos
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
             </a>
-          ))}
+          </Link>
           
           <button
             onClick={toggleTheme}
@@ -101,16 +113,25 @@ export function Navbar() {
             className="md:hidden glass-panel border-b border-white/10"
           >
             <div className="px-4 py-6 flex flex-col gap-4">
-              {navLinks.map((link) => (
+              <Link href="/staticchaos">
                 <a
-                  key={link.name}
-                  href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className="text-base font-display font-medium uppercase tracking-widest text-foreground hover:text-primary px-4 py-2 rounded-md hover:bg-primary/10 transition-colors"
                 >
-                  {link.name}
+                  Static Chaos
                 </a>
-              ))}
+              </Link>
+              {!isStaticChaosPage &&
+                navLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-base font-display font-medium uppercase tracking-widest text-foreground hover:text-primary px-4 py-2 rounded-md hover:bg-primary/10 transition-colors"
+                  >
+                    {link.name}
+                  </a>
+                ))}
             </div>
           </motion.div>
         )}

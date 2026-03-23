@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 import { SectionHeading } from "./SectionHeading";
-import { ExternalLink, Database, Network, ShieldCheck, FileText } from "lucide-react";
+import { ExternalLink, Database, Network, ShieldCheck, FileText, TerminalSquare, ArrowRight, RadioTower } from "lucide-react";
 import { ESCO_PROJECT, ECOSYSTEM_PROJECTS } from "@/data/resume";
+import { PremiumButton } from "@/components/ui/PremiumButton";
 
 const ECOSYSTEM_ICONS = [Network, Database, ShieldCheck, FileText, Database];
 
@@ -145,6 +147,77 @@ export function Projects() {
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mt-16 rounded-2xl border border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 p-8 md:p-10"
+        >
+          <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-end">
+            <div className="space-y-5">
+              <div className="flex items-center gap-3">
+                <TerminalSquare className="h-6 w-6 text-primary" />
+                <span className="font-mono text-xs uppercase tracking-[0.3em] text-primary">
+                  Live Systems Demo
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                <h3 className="text-3xl font-display font-bold uppercase text-foreground md:text-4xl">
+                  Static Chaos
+                </h3>
+                <p className="max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+                  A legacy C MUD revived with a modern deployment path, a browser-safe
+                  WebSocket gateway, and a recruiter-friendly live terminal. This is the
+                  systems side of my work in one click: runtime constraints, protocol
+                  conversion, and a usable frontend handoff.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {["C", "Docker", "Railway", "WebSocket Proxy", "Portfolio Integration"].map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded border border-border bg-background px-3 py-1 font-mono text-xs text-muted-foreground"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4 rounded-xl border border-white/10 bg-background/70 p-5 backdrop-blur-sm">
+              <div className="flex items-center gap-3 text-sm font-mono uppercase tracking-[0.2em] text-primary">
+                <RadioTower className="h-4 w-4" />
+                Live Access
+              </div>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Open the dedicated page to inspect the architecture story and use the live
+                terminal running through the Railway gateway.
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+                <Link href="/staticchaos">
+                  <a>
+                    <PremiumButton className="w-full gap-2">
+                      Launch Demo <ArrowRight className="h-4 w-4" />
+                    </PremiumButton>
+                  </a>
+                </Link>
+                <a
+                  href="https://github.com/mjshuff23/staticchaos"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <PremiumButton variant="outline" className="w-full gap-2">
+                    View Source <ExternalLink className="h-4 w-4" />
+                  </PremiumButton>
+                </a>
+              </div>
+            </div>
+          </div>
+        </motion.div>
         
       </div>
     </section>
