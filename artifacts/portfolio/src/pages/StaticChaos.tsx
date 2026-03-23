@@ -424,12 +424,12 @@ export default function StaticChaos() {
               </div>
             </motion.div>
 
-            <div className="grid gap-8 xl:grid-cols-[1.8fr_0.82fr]">
+            <div className="grid gap-8 xl:grid-cols-[1.8fr_0.82fr] xl:items-start">
               <motion.section
                 initial={{ opacity: 0, y: 28 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, delay: 0.1 }}
-                className="overflow-hidden rounded-[28px] border border-primary/20 bg-[#071118] shadow-[0_0_0_1px_rgba(72,240,210,0.08),0_30px_90px_rgba(0,0,0,0.45)]"
+                className="self-start overflow-hidden rounded-[28px] border border-primary/20 bg-[#071118] shadow-[0_0_0_1px_rgba(72,240,210,0.08),0_30px_90px_rgba(0,0,0,0.45)]"
               >
                 <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 px-5 py-4">
                   <div className="flex items-center gap-3">
@@ -469,7 +469,7 @@ export default function StaticChaos() {
                 initial={{ opacity: 0, x: 24 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.55, delay: 0.18 }}
-                className="space-y-6"
+                className="self-start space-y-6"
               >
                 <section className="rounded-[24px] border border-border bg-card/70 p-6 backdrop-blur-sm">
                   <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-primary">

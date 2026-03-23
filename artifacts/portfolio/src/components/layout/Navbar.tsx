@@ -22,7 +22,7 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const isStaticChaosPage = location === "/staticchaos";
   const resolvedNavLinks = navLinks.map((link) => ({
     ...link,
@@ -36,6 +36,27 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const scrollHomeToTop = () => {
+    const cleanUrl = `${window.location.pathname}${window.location.search}`;
+    window.history.replaceState(null, "", cleanUrl);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleLogoClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    setMobileMenuOpen(false);
+
+    if (isStaticChaosPage) {
+      navigate("/");
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(scrollHomeToTop);
+      });
+      return;
+    }
+
+    scrollHomeToTop();
+  };
 
   return (
     <motion.header
@@ -54,6 +75,7 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/">
           <a
+            onClick={handleLogoClick}
             className="group flex items-center gap-2 text-foreground hover:text-primary transition-colors"
             data-testid="link-home"
           >
