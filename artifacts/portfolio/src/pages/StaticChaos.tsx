@@ -9,6 +9,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { PremiumButton } from "@/components/ui/PremiumButton";
 import { cn } from "@/lib/utils";
+import { parseTelnetChunk, writeLocalInput } from "@/lib/telnet";
 
 const SOCKET_URL =
   import.meta.env.VITE_STATIC_CHAOS_WS_URL ?? "wss://humble-curiosity-production.up.railway.app/ws";
@@ -54,6 +55,7 @@ export default function StaticChaos() {
   const terminalRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
+  const localEchoRef = useRef(true);
   const [status, setStatus] = useState<ConnectionStatus>("idle");
   const [statusMessage, setStatusMessage] = useState("Live browser gateway online.");
   const [sessionKey, setSessionKey] = useState(0);
@@ -126,8 +128,23 @@ export default function StaticChaos() {
           return;
         }
 
-        const text = new TextDecoder().decode(event.data);
-        terminal.write(text);
+        const chunk = new Uint8Array(event.data);
+        const parsed = parseTelnetChunk(chunk);
+
+        if (parsed.localEcho !== undefined) {
+          localEchoRef.current = parsed.localEcho;
+        }
+
+        for (const response of parsed.responses) {
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(response);
+          }
+        }
+
+        if (parsed.text.length > 0) {
+          const text = new TextDecoder().decode(parsed.text);
+          terminal.write(text);
+        }
       };
 
       socket.onerror = () => {
@@ -144,6 +161,7 @@ export default function StaticChaos() {
 
       const disposable = terminal.onData((value) => {
         if (socket.readyState === WebSocket.OPEN) {
+          writeLocalInput((text) => terminal.write(text), value, localEchoRef.current);
           socket.send(value);
         }
       });
