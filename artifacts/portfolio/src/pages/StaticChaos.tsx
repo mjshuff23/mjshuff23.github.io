@@ -56,6 +56,10 @@ export default function StaticChaos() {
   const fitAddonRef = useRef<FitAddon | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const localEchoRef = useRef(true);
+  const currentInputRef = useRef("");
+  const commandHistoryRef = useRef<string[]>([]);
+  const historyIndexRef = useRef<number | null>(null);
+  const historyDraftRef = useRef("");
   const [status, setStatus] = useState<ConnectionStatus>("idle");
   const [statusMessage, setStatusMessage] = useState("Live browser gateway online.");
   const [sessionKey, setSessionKey] = useState(0);
@@ -119,6 +123,90 @@ export default function StaticChaos() {
     terminal.writeln("\x1b[36m[static-chaos]\x1b[0m Booting remote terminal...");
     terminal.writeln("");
 
+    const sendToSocket = (payload: string | Uint8Array) => {
+      const socket = socketRef.current;
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        return;
+      }
+
+      socket.send(payload);
+    };
+
+    const replaceCurrentInput = (nextInput: string) => {
+      const previousInput = currentInputRef.current;
+      if (previousInput === nextInput) {
+        return;
+      }
+
+      if (previousInput.length > 0) {
+        const eraseSequence = "\u007f".repeat(previousInput.length);
+        if (localEchoRef.current) {
+          writeLocalInput((text) => terminal.write(text), eraseSequence, true);
+        }
+        sendToSocket(eraseSequence);
+      }
+
+      if (nextInput.length > 0) {
+        if (localEchoRef.current) {
+          writeLocalInput((text) => terminal.write(text), nextInput, true);
+        }
+        sendToSocket(nextInput);
+      }
+
+      currentInputRef.current = nextInput;
+    };
+
+    terminal.attachCustomKeyEventHandler((event) => {
+      if (event.type !== "keydown" || !localEchoRef.current) {
+        return true;
+      }
+
+      if (event.altKey || event.ctrlKey || event.metaKey) {
+        return true;
+      }
+
+      const history = commandHistoryRef.current;
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+
+        if (history.length === 0) {
+          return false;
+        }
+
+        if (historyIndexRef.current === null) {
+          historyDraftRef.current = currentInputRef.current;
+          historyIndexRef.current = history.length - 1;
+        } else if (historyIndexRef.current > 0) {
+          historyIndexRef.current -= 1;
+        }
+
+        const nextCommand = history[historyIndexRef.current] ?? "";
+        replaceCurrentInput(nextCommand);
+        return false;
+      }
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+
+        if (history.length === 0 || historyIndexRef.current === null) {
+          return false;
+        }
+
+        if (historyIndexRef.current < history.length - 1) {
+          historyIndexRef.current += 1;
+          replaceCurrentInput(history[historyIndexRef.current] ?? "");
+          return false;
+        }
+
+        historyIndexRef.current = null;
+        replaceCurrentInput(historyDraftRef.current);
+        historyDraftRef.current = "";
+        return false;
+      }
+
+      return true;
+    });
+
     const focusTerminal = () => {
       terminal.focus();
     };
@@ -161,6 +249,11 @@ export default function StaticChaos() {
 
         if (parsed.localEcho !== undefined) {
           localEchoRef.current = parsed.localEcho;
+          if (!parsed.localEcho) {
+            currentInputRef.current = "";
+            historyIndexRef.current = null;
+            historyDraftRef.current = "";
+          }
         }
 
         for (const response of parsed.responses) {
@@ -189,10 +282,44 @@ export default function StaticChaos() {
       };
 
       const disposable = terminal.onData((value) => {
-        if (socket.readyState === WebSocket.OPEN) {
-          writeLocalInput((text) => terminal.write(text), value, localEchoRef.current);
-          socket.send(value);
+        if (socket.readyState !== WebSocket.OPEN) {
+          return;
         }
+
+        if (localEchoRef.current) {
+          for (const char of value) {
+            if (char === "\r") {
+              const trimmed = currentInputRef.current.trim();
+              if (trimmed.length > 0) {
+                const history = commandHistoryRef.current;
+                if (history[history.length - 1] !== currentInputRef.current) {
+                  history.push(currentInputRef.current);
+                }
+              }
+
+              currentInputRef.current = "";
+              historyIndexRef.current = null;
+              historyDraftRef.current = "";
+              continue;
+            }
+
+            if (char === "\u007f") {
+              currentInputRef.current = currentInputRef.current.slice(0, -1);
+              historyIndexRef.current = null;
+              historyDraftRef.current = "";
+              continue;
+            }
+
+            if (char >= " " || char === "\t") {
+              currentInputRef.current += char;
+              historyIndexRef.current = null;
+              historyDraftRef.current = "";
+            }
+          }
+        }
+
+        writeLocalInput((text) => terminal.write(text), value, localEchoRef.current);
+        socket.send(value);
       });
 
       return () => {
