@@ -69,9 +69,10 @@ export default function StaticChaos() {
     const terminal = new Terminal({
       cursorBlink: true,
       convertEol: false,
-      fontFamily: '"Chakra Petch", "Fira Code", monospace',
-      fontSize: 15,
-      lineHeight: 1.2,
+      fontFamily:
+        '"Cascadia Mono", "Fira Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
+      fontSize: 13,
+      lineHeight: 1.1,
       theme: {
         background: "#08131a",
         foreground: "#d7f5ef",
@@ -212,7 +213,7 @@ export default function StaticChaos() {
               </div>
             </motion.div>
 
-            <div className="grid gap-8 xl:grid-cols-[1.55fr_0.95fr]">
+            <div className="grid gap-8 xl:grid-cols-[1.8fr_0.82fr]">
               <motion.section
                 initial={{ opacity: 0, y: 28 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -248,8 +249,8 @@ export default function StaticChaos() {
                   </div>
                 </div>
 
-                <div className="relative min-h-[32rem] bg-[linear-gradient(180deg,rgba(72,240,210,0.03),transparent_22%),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:auto,28px_28px,28px_28px]">
-                  <div ref={terminalHostRef} className="h-[32rem] w-full p-4 md:p-5" />
+                <div className="relative min-h-[36rem] bg-[linear-gradient(180deg,rgba(72,240,210,0.03),transparent_22%),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:auto,28px_28px,28px_28px] md:min-h-[40rem]">
+                  <div ref={terminalHostRef} className="h-[36rem] w-full p-3 md:h-[40rem] md:p-4" />
                 </div>
               </motion.section>
 
