@@ -119,6 +119,13 @@ export default function StaticChaos() {
     terminal.writeln("\x1b[36m[static-chaos]\x1b[0m Booting remote terminal...");
     terminal.writeln("");
 
+    const focusTerminal = () => {
+      terminal.focus();
+    };
+
+    mountNode.addEventListener("click", focusTerminal);
+    mountNode.addEventListener("mousedown", focusTerminal);
+
     terminalRef.current = terminal;
     fitAddonRef.current = fitAddon;
 
@@ -217,6 +224,8 @@ export default function StaticChaos() {
       if (viewportSyncTimer !== null) {
         window.clearTimeout(viewportSyncTimer);
       }
+      mountNode.removeEventListener("click", focusTerminal);
+      mountNode.removeEventListener("mousedown", focusTerminal);
       window.removeEventListener("resize", handleResize);
       resizeObserver.disconnect();
       disconnect?.();

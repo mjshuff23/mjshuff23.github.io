@@ -168,6 +168,13 @@
   user-select: none;
 }
 
+.static-chaos-terminal .xterm-screen,
+.static-chaos-terminal .xterm-screen canvas,
+.static-chaos-terminal .xterm-selection-layer,
+.static-chaos-terminal .xterm-text-layer {
+  pointer-events: none;
+}
+
 .static-chaos-terminal .xterm {
   padding-bottom: 10px;
 }
@@ -175,4 +182,5 @@
 .static-chaos-terminal .xterm-viewport {
   overscroll-behavior: contain;
   scrollbar-color: hsl(var(--primary) / 0.55) transparent;
+  pointer-events: auto;
 }
