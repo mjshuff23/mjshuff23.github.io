@@ -24,7 +24,7 @@ export function MacroQuickBar({ macros, onRunMacro }: MacroQuickBarProps) {
               Quick Macros
             </p>
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Tap on mobile or use the bound key on desktop
+              Tap here on mobile. Desktop uses the labeled key bindings.
             </p>
           </div>
         </div>
@@ -44,7 +44,7 @@ export function MacroQuickBar({ macros, onRunMacro }: MacroQuickBarProps) {
             <Play className="h-3.5 w-3.5" />
             {macro.name}
             <span className="text-[10px] text-muted-foreground">
-              {formatMacroBinding(macro.binding)}
+              {formatMacroBinding(macro.binding)} key
             </span>
           </button>
         ))}

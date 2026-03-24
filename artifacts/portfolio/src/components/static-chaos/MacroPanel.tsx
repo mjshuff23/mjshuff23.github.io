@@ -43,14 +43,13 @@ export function MacroPanel({
             Client Macros
           </p>
           <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            Macros are browser-side shortcuts that fire one or more commands with a
-            single key press or tap. Desktop players can use bound keys like function
-            keys or the numpad, and the same macros can surface as mobile-friendly
-            buttons in the quick bar.
+            Macros are browser-side shortcuts that fire one or more commands with one
+            action. On desktop they respond to a bound function key or numpad key,
+            and on mobile the same macro can appear as a quick button.
           </p>
         </div>
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary">
-          Keyboard on desktop, buttons on mobile
+          Desktop keys, mobile buttons
         </p>
       </div>
 
@@ -70,7 +69,7 @@ export function MacroPanel({
                     <div>
                       <p className="font-mono text-sm text-foreground">{macro.name}</p>
                       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-primary">
-                        {formatMacroBinding(macro.binding)}
+                        Desktop key: {formatMacroBinding(macro.binding)}
                       </p>
                     </div>
                     <span className="rounded-full border border-primary/20 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-primary">
@@ -117,8 +116,8 @@ export function MacroPanel({
                         <div>
                           <p className="font-mono text-sm text-foreground">{macro.name}</p>
                           <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-primary">
-                            {formatMacroBinding(macro.binding)}
-                            {macro.quickBar ? " • Quick Bar" : " • Keyboard Only"}
+                            Desktop key: {formatMacroBinding(macro.binding)}
+                            {macro.quickBar ? " • Also in quick bar" : " • Desktop only"}
                           </p>
                         </div>
                         <code className="block whitespace-pre-wrap break-words font-mono text-xs text-primary/90">
@@ -161,8 +160,8 @@ export function MacroPanel({
             Create Macro
           </p>
           <p className="mb-5 text-sm leading-relaxed text-muted-foreground">
-            Pick a desktop key binding, define one or more commands, and decide if the
-            macro should also appear as a tap target in the quick bar.
+            Pick a desktop key binding, define the command sequence, and choose
+            whether this macro should also appear as a mobile-friendly quick button.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -182,7 +181,7 @@ export function MacroPanel({
 
             <label className="block space-y-2">
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
-                Key Binding
+                Desktop Key Binding
               </span>
               <div className="relative">
                 <Keyboard className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/80" />
@@ -230,8 +229,8 @@ export function MacroPanel({
                 className="mt-1 h-4 w-4 rounded border-white/20 bg-background text-primary"
               />
               <span className="text-sm leading-relaxed text-muted-foreground">
-                Show this macro in the quick bar so it can be tapped on mobile and
-                clicked on desktop.
+                Show this macro in the quick bar so it can be tapped on mobile.
+                The desktop key binding still works either way.
               </span>
             </label>
 
@@ -241,8 +240,13 @@ export function MacroPanel({
               </p>
               <p className="mt-2">
                 Use one command per line if you want a clear readable sequence.
-                Function keys and numpad bindings only fire while the terminal has
-                focus, so editing forms here will not accidentally launch them.
+                Built-in defaults are chosen to stay demo-safe and not depend on a
+                specific class-only bridge command.
+              </p>
+              <p className="mt-2">
+                Function keys and numpad bindings are desktop-only and only fire while
+                the terminal has focus, so editing forms here will not accidentally
+                launch them.
               </p>
             </div>
 

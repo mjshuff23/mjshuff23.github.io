@@ -161,9 +161,9 @@ export default function StaticChaos() {
                       )}
                     >
                       <Command className="h-3.5 w-3.5" />
-                      Aliases
-                      <span className="text-[10px] text-muted-foreground/80">
-                        {BUILT_IN_ALIASES.length + customAliases.length}
+                      Alias Tools
+                      <span className="rounded-full border border-white/10 px-1.5 py-0.5 text-[10px] leading-none text-muted-foreground/80">
+                        {BUILT_IN_ALIASES.length + customAliases.length} total
                       </span>
                     </button>
                     <button
@@ -180,9 +180,9 @@ export default function StaticChaos() {
                           : "border-white/10 text-muted-foreground hover:border-primary/40 hover:text-primary",
                       )}
                     >
-                      Macros
-                      <span className="text-[10px] text-muted-foreground/80">
-                        {BUILT_IN_MACROS.length + customMacros.length}
+                      Macro Tools
+                      <span className="rounded-full border border-white/10 px-1.5 py-0.5 text-[10px] leading-none text-muted-foreground/80">
+                        {BUILT_IN_MACROS.length + customMacros.length} total
                       </span>
                     </button>
                     <button

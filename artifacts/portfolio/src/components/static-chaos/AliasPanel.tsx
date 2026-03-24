@@ -39,16 +39,15 @@ export function AliasPanel({
             Client Aliases
           </p>
           <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            These are browser-side quality-of-life shortcuts inspired by classic
-            MUD clients. Built-ins help demonstrate the pattern, and custom aliases
-            are stored locally in this browser. Use semicolons or new lines in the
-            editor to define a sequence, and the client will send those commands one
-            line at a time. Use <code>$*</code> inside a custom alias to forward the
-            rest of the line.
+            Aliases are browser-side shorthand inspired by classic MUD clients.
+            Built-ins show the pattern, and custom aliases stay in this browser via
+            local storage. Use semicolons or new lines in the editor to define a
+            sequence, and the client will send those commands one line at a time.
+            Use <code>$*</code> to forward the rest of the line.
           </p>
         </div>
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary">
-          zMUD-style shorthand, local only
+          Local shorthand only
         </p>
       </div>
 
