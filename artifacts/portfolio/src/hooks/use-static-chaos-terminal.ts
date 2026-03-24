@@ -84,6 +84,14 @@ export function useStaticChaosTerminal({
 
     let viewportSyncTimer: number | null = null;
 
+    const syncViewport = () => {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          terminal.scrollToBottom();
+        });
+      });
+    };
+
     const scheduleFit = () => {
       if (viewportSyncTimer !== null) {
         window.clearTimeout(viewportSyncTimer);
@@ -93,16 +101,24 @@ export function useStaticChaosTerminal({
         window.requestAnimationFrame(() => {
           window.requestAnimationFrame(() => {
             fitAddon.fit();
-            terminal.scrollToBottom();
+            syncViewport();
           });
         });
       }, 32);
     };
 
+    const writeTerminal = (text: string) => {
+      terminal.write(text, syncViewport);
+    };
+
+    const writelnTerminal = (text: string) => {
+      terminal.writeln(text, syncViewport);
+    };
+
     scheduleFit();
     terminal.focus();
-    terminal.writeln("\x1b[36m[static-chaos]\x1b[0m Booting remote terminal...");
-    terminal.writeln("");
+    writelnTerminal("\x1b[36m[static-chaos]\x1b[0m Booting remote terminal...");
+    writelnTerminal("");
 
     const decoder = new TextDecoder();
 
@@ -125,14 +141,14 @@ export function useStaticChaosTerminal({
         const localEraseSequence = LOCAL_ERASE_CHAR.repeat(previousInput.length);
         const remoteEraseSequence = REMOTE_ERASE_CHAR.repeat(previousInput.length);
         if (localEchoRef.current) {
-          writeLocalInput((text) => terminal.write(text), localEraseSequence, true);
+          writeLocalInput(writeTerminal, localEraseSequence, true);
         }
         sendToSocket(remoteEraseSequence);
       }
 
       if (nextInput.length > 0) {
         if (localEchoRef.current) {
-          writeLocalInput((text) => terminal.write(text), nextInput, true);
+          writeLocalInput(writeTerminal, nextInput, true);
         }
         sendToSocket(nextInput);
       }
@@ -224,13 +240,13 @@ export function useStaticChaosTerminal({
       socket.onopen = () => {
         setStatus("connected");
         setStatusMessage("Connected. Type directly into the terminal.");
-        terminal.writeln("\x1b[32m[bridge]\x1b[0m Connected.\r\n");
+        writelnTerminal("\x1b[32m[bridge]\x1b[0m Connected.\r\n");
         scheduleFit();
       };
 
       socket.onmessage = (event) => {
         if (typeof event.data === "string") {
-          terminal.write(event.data);
+          writeTerminal(event.data);
           scheduleFit();
           return;
         }
@@ -255,7 +271,7 @@ export function useStaticChaosTerminal({
 
         if (parsed.text.length > 0) {
           const text = decoder.decode(parsed.text);
-          terminal.write(text);
+          writeTerminal(text);
           scheduleFit();
         }
       };
@@ -263,13 +279,13 @@ export function useStaticChaosTerminal({
       socket.onerror = () => {
         setStatus("error");
         setStatusMessage("WebSocket bridge failed. Retry or use the raw telnet endpoint.");
-        terminal.writeln("\r\n\x1b[31m[bridge]\x1b[0m Connection error.\r\n");
+        writelnTerminal("\r\n\x1b[31m[bridge]\x1b[0m Connection error.\r\n");
       };
 
       socket.onclose = () => {
         setStatus((current) => (current === "error" ? "error" : "disconnected"));
         setStatusMessage("Session closed. Reconnect to start a fresh terminal.");
-        terminal.writeln("\r\n\x1b[33m[bridge]\x1b[0m Session closed.\r\n");
+        writelnTerminal("\r\n\x1b[33m[bridge]\x1b[0m Session closed.\r\n");
       };
 
       const disposable = terminal.onData((value) => {
@@ -282,7 +298,7 @@ export function useStaticChaosTerminal({
             currentInputRef.current = currentInputRef.current.slice(0, -1);
             historyIndexRef.current = null;
             historyDraftRef.current = "";
-            writeLocalInput((text) => terminal.write(text), value, true);
+            writeLocalInput(writeTerminal, value, true);
           }
 
           sendToSocket(REMOTE_ERASE_CHAR);
@@ -304,7 +320,7 @@ export function useStaticChaosTerminal({
           historyIndexRef.current = null;
           historyDraftRef.current = "";
 
-          writeLocalInput((text) => terminal.write(text), value, true);
+          writeLocalInput(writeTerminal, value, true);
 
           const resolvedAlias = resolveAlias(rawInput, aliasMapRef.current);
           if (resolvedAlias) {
@@ -312,7 +328,7 @@ export function useStaticChaosTerminal({
               sendToSocket(REMOTE_ERASE_CHAR.repeat(rawInput.length));
             }
 
-            terminal.writeln(
+            writelnTerminal(
               `\x1b[36m[alias]\x1b[0m ${resolvedAlias.alias.key} -> ${resolvedAlias.preview}`,
             );
             sendToSocket(`${resolvedAlias.commands.join("\r")}\r`);
@@ -346,7 +362,7 @@ export function useStaticChaosTerminal({
           }
         }
 
-        writeLocalInput((text) => terminal.write(text), value, localEchoRef.current);
+        writeLocalInput(writeTerminal, value, localEchoRef.current);
         sendToSocket(value);
       });
 
