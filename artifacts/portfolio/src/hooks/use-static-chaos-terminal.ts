@@ -14,6 +14,9 @@ export type ConnectionStatus =
   | "disconnected"
   | "error";
 
+const LOCAL_ERASE_CHAR = "\u007f";
+const REMOTE_ERASE_CHAR = "\b";
+
 function toSocketPayload(payload: Uint8Array): ArrayBuffer {
   const copy = new Uint8Array(payload.byteLength);
   copy.set(payload);
@@ -119,11 +122,12 @@ export function useStaticChaosTerminal({
       }
 
       if (previousInput.length > 0) {
-        const eraseSequence = "\u007f".repeat(previousInput.length);
+        const localEraseSequence = LOCAL_ERASE_CHAR.repeat(previousInput.length);
+        const remoteEraseSequence = REMOTE_ERASE_CHAR.repeat(previousInput.length);
         if (localEchoRef.current) {
-          writeLocalInput((text) => terminal.write(text), eraseSequence, true);
+          writeLocalInput((text) => terminal.write(text), localEraseSequence, true);
         }
-        sendToSocket(eraseSequence);
+        sendToSocket(remoteEraseSequence);
       }
 
       if (nextInput.length > 0) {
@@ -273,6 +277,18 @@ export function useStaticChaosTerminal({
           return;
         }
 
+        if (value === LOCAL_ERASE_CHAR) {
+          if (localEchoRef.current) {
+            currentInputRef.current = currentInputRef.current.slice(0, -1);
+            historyIndexRef.current = null;
+            historyDraftRef.current = "";
+            writeLocalInput((text) => terminal.write(text), value, true);
+          }
+
+          sendToSocket(REMOTE_ERASE_CHAR);
+          return;
+        }
+
         if (localEchoRef.current && value === "\r") {
           const rawInput = currentInputRef.current;
           const trimmed = rawInput.trim();
@@ -293,7 +309,7 @@ export function useStaticChaosTerminal({
           const resolvedAlias = resolveAlias(rawInput, aliasMapRef.current);
           if (resolvedAlias) {
             if (rawInput.length > 0) {
-              sendToSocket("\u007f".repeat(rawInput.length));
+              sendToSocket(REMOTE_ERASE_CHAR.repeat(rawInput.length));
             }
 
             terminal.writeln(
@@ -322,13 +338,6 @@ export function useStaticChaosTerminal({
 
         if (localEchoRef.current) {
           for (const char of value) {
-            if (char === "\u007f") {
-              currentInputRef.current = currentInputRef.current.slice(0, -1);
-              historyIndexRef.current = null;
-              historyDraftRef.current = "";
-              continue;
-            }
-
             if (char >= " " || char === "\t") {
               currentInputRef.current += char;
               historyIndexRef.current = null;

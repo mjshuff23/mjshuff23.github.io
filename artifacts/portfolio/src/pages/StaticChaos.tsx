@@ -162,20 +162,56 @@ export default function StaticChaos() {
                   </div>
                 </div>
 
-                <div className="relative min-h-[34rem] bg-[linear-gradient(180deg,rgba(72,240,210,0.03),transparent_22%),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:auto,28px_28px,28px_28px] md:min-h-[38rem]">
-                  <div ref={terminalHostRef} className="static-chaos-terminal h-[34rem] w-full p-3 md:h-[38rem] md:p-4" />
+                <div className="border-b border-white/10 bg-[#050d13] p-4">
+                  <div className="rounded-[24px] border border-primary/20 bg-[#061019] shadow-[inset_0_1px_0_rgba(72,240,210,0.08),0_0_0_1px_rgba(72,240,210,0.04)]">
+                    <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+                      <div>
+                        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-primary">
+                          Game Feed
+                        </p>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                          Live MUD session output and input
+                        </p>
+                      </div>
+                      <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                        Runtime Surface
+                      </div>
+                    </div>
+
+                    <div className="relative min-h-[34rem] overflow-hidden rounded-b-[24px] bg-[linear-gradient(180deg,rgba(72,240,210,0.03),transparent_22%),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:auto,28px_28px,28px_28px] md:min-h-[38rem]">
+                      <div ref={terminalHostRef} className="static-chaos-terminal h-[34rem] w-full p-3 md:h-[38rem] md:p-4" />
+                    </div>
+                  </div>
                 </div>
 
                 {aliasesOpen && (
-                  <AliasPanel
-                    builtInAliases={BUILT_IN_ALIASES}
-                    customAliases={customAliases}
-                    aliasDraft={aliasDraft}
-                    aliasFormMessage={aliasFormMessage}
-                    onDraftChange={setAliasDraft}
-                    onSaveAlias={saveAlias}
-                    onRemoveAlias={removeAlias}
-                  />
+                  <div className="border-t border-primary/10 bg-[linear-gradient(180deg,rgba(72,240,210,0.05),rgba(7,17,24,0.96))]">
+                    <div className="px-5 pt-4">
+                      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#08131a]/80 px-4 py-3">
+                        <div>
+                          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-primary">
+                            Client Tools
+                          </p>
+                          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                            Browser-side aliases and local quality-of-life controls
+                          </p>
+                        </div>
+                        <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                          Separate From The Game Server
+                        </div>
+                      </div>
+                    </div>
+
+                    <AliasPanel
+                      builtInAliases={BUILT_IN_ALIASES}
+                      customAliases={customAliases}
+                      aliasDraft={aliasDraft}
+                      aliasFormMessage={aliasFormMessage}
+                      onDraftChange={setAliasDraft}
+                      onSaveAlias={saveAlias}
+                      onRemoveAlias={removeAlias}
+                    />
+                  </div>
                 )}
               </motion.section>
 

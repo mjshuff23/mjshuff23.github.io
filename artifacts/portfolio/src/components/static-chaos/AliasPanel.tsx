@@ -32,7 +32,7 @@ export function AliasPanel({
   };
 
   return (
-    <div className="border-t border-white/10 bg-[#08131a]/90 px-5 py-5">
+    <div className="m-4 mt-5 rounded-[24px] border border-primary/20 bg-[#09151c]/95 px-5 py-5 shadow-[0_0_0_1px_rgba(72,240,210,0.04),inset_0_1px_0_rgba(72,240,210,0.08)]">
       <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
           <p className="font-display text-lg font-semibold uppercase text-foreground">
@@ -41,8 +41,10 @@ export function AliasPanel({
           <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
             These are browser-side quality-of-life shortcuts inspired by classic
             MUD clients. Built-ins help demonstrate the pattern, and custom aliases
-            are stored locally in this browser. Use <code>$*</code> inside a custom
-            alias to forward the rest of the line.
+            are stored locally in this browser. Use semicolons or new lines in the
+            editor to define a sequence, and the client will send those commands one
+            line at a time. Use <code>$*</code> inside a custom alias to forward the
+            rest of the line.
           </p>
         </div>
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary">
@@ -72,7 +74,7 @@ export function AliasPanel({
                     {alias.description}
                   </p>
                   <code className="block whitespace-pre-wrap break-words font-mono text-xs text-primary/90">
-                    {splitAliasCommands(alias.commands).join(" ; ")}
+                    {splitAliasCommands(alias.commands).join("\n")}
                   </code>
                 </div>
               ))}
@@ -98,7 +100,7 @@ export function AliasPanel({
                     <div className="space-y-2">
                       <code className="font-mono text-sm text-foreground">{alias.key}</code>
                       <code className="block whitespace-pre-wrap break-words font-mono text-xs text-primary/90">
-                        {splitAliasCommands(alias.commands).join(" ; ")}
+                        {splitAliasCommands(alias.commands).join("\n")}
                       </code>
                     </div>
                     <button
@@ -122,7 +124,8 @@ export function AliasPanel({
           </p>
           <p className="mb-5 text-sm leading-relaxed text-muted-foreground">
             Alias names are single tokens like <code>lootbag</code> or <code>burst</code>.
-            Separate commands with semicolons or new lines.
+            Separate commands with semicolons or new lines. They are not sent as
+            literal <code>;</code> characters to the MUD.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -149,7 +152,7 @@ export function AliasPanel({
                 onChange={(event) =>
                   onDraftChange({ ...aliasDraft, commands: event.target.value })
                 }
-                placeholder={"get all corpse; look in corpse\nor\nget $*"}
+                placeholder={"score\naffects\nequipment"}
                 rows={6}
                 className="w-full rounded-xl border border-white/10 bg-background/80 px-4 py-3 font-mono text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary/40"
               />
@@ -163,6 +166,10 @@ export function AliasPanel({
                 Use <code>$*</code> to pass through the rest of the command line.
                 Example: alias <code>gt</code> with <code>get $*</code>, then typing{" "}
                 <code>gt sword</code> becomes <code>get sword</code>.
+              </p>
+              <p className="mt-2">
+                For multi-step aliases, put each command on its own line. Example:
+                <code className="ml-1 whitespace-pre-wrap">score{"\n"}affects{"\n"}equipment</code>
               </p>
             </div>
 
