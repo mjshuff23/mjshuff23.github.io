@@ -12,8 +12,9 @@ import {
   type MacroDefinition,
 } from "@/features/static-chaos/macros";
 import {
-  doesTriggerMatch,
+  applyTriggerVariables,
   getTriggerPatternLabel,
+  matchTrigger,
   previewTriggerCommands,
   type TriggerDefinition,
 } from "@/features/static-chaos/triggers";
@@ -141,6 +142,39 @@ export function useStaticChaosTerminal({
 
     const decoder = new TextDecoder();
 
+    const copyTerminalSelection = () => {
+      if (!terminal.hasSelection()) {
+        return false;
+      }
+
+      const selection = terminal.getSelection();
+      if (!selection) {
+        return false;
+      }
+
+      const copyViaClipboard = async () => {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(selection);
+          return;
+        }
+
+        const textarea = document.createElement("textarea");
+        textarea.value = selection;
+        textarea.setAttribute("readonly", "true");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.append(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+      };
+
+      void copyViaClipboard().catch(() => {
+        // Ignore clipboard failures and leave the terminal selection intact.
+      });
+      return true;
+    };
+
     const sendToSocket = (payload: string | Uint8Array) => {
       const socket = socketRef.current;
       if (!socket || socket.readyState !== WebSocket.OPEN) {
@@ -251,25 +285,29 @@ export function useStaticChaosTerminal({
           continue;
         }
 
-        if (!doesTriggerMatch(trigger, candidateText)) {
+        const candidateMatch = matchTrigger(trigger, candidateText);
+        if (!candidateMatch) {
           continue;
         }
 
-        if (
-          !doesTriggerMatch(trigger, text) &&
-          doesTriggerMatch(trigger, previousTail)
-        ) {
+        const freshMatch = matchTrigger(trigger, text);
+        const staleMatch = matchTrigger(trigger, previousTail);
+        if (!freshMatch && staleMatch) {
           continue;
         }
 
         triggerCooldownsRef.current.set(trigger.key, now);
 
         if (trigger.action === "send") {
+          const resolvedCommands = applyTriggerVariables(
+            trigger.commands,
+            freshMatch?.captures ?? candidateMatch.captures,
+          );
           executeClientCommands({
-            commands: splitAliasCommands(trigger.commands),
+            commands: splitAliasCommands(resolvedCommands),
             label: trigger.name,
             prefix: "trigger",
-            preview: previewTriggerCommands(trigger.commands),
+            preview: previewTriggerCommands(resolvedCommands),
           });
           continue;
         }
@@ -317,6 +355,13 @@ export function useStaticChaosTerminal({
     terminal.attachCustomKeyEventHandler((event) => {
       if (event.type !== "keydown") {
         return true;
+      }
+
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "c") {
+        if (copyTerminalSelection()) {
+          event.preventDefault();
+          return false;
+        }
       }
 
       if (event.altKey || event.ctrlKey || event.metaKey) {

@@ -37,6 +37,10 @@ export type TriggerDraft = {
   enabled: boolean;
 };
 
+export type TriggerMatchResult = {
+  captures: Record<string, string>;
+};
+
 export const TRIGGER_STORAGE_KEY = "static-chaos.triggers.v1";
 
 export const BUILT_IN_TRIGGERS: TriggerDefinition[] = [];
@@ -130,21 +134,69 @@ export function previewTriggerCommands(commands: string): string {
   return splitAliasCommands(commands).join(" ; ");
 }
 
-export function doesTriggerMatch(
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function compileTemplatePattern(pattern: string): RegExp {
+  const variablePattern = /<([a-zA-Z][a-zA-Z0-9_-]*)>/g;
+  let cursor = 0;
+  let source = "";
+  let match: RegExpExecArray | null;
+
+  while ((match = variablePattern.exec(pattern)) !== null) {
+    source += escapeRegex(pattern.slice(cursor, match.index));
+    source += `(?<${match[1]}>[\\s\\S]+?)`;
+    cursor = match.index + match[0].length;
+  }
+
+  source += escapeRegex(pattern.slice(cursor));
+  return new RegExp(source, "m");
+}
+
+export function matchTrigger(
   trigger: Pick<TriggerDefinition, "pattern" | "matchMode">,
   input: string,
-): boolean {
+): TriggerMatchResult | null {
   if (!input || !trigger.pattern) {
-    return false;
+    return null;
   }
 
   if (trigger.matchMode === "contains") {
-    return input.includes(trigger.pattern);
+    const templateRegex = compileTemplatePattern(trigger.pattern);
+    const match = templateRegex.exec(input);
+    if (!match) {
+      return null;
+    }
+
+    const captures = Object.fromEntries(
+      Object.entries(match.groups ?? {}).map(([key, value]) => [key, value.trim()]),
+    );
+
+    return { captures };
   }
 
   try {
-    return new RegExp(trigger.pattern, "m").test(input);
+    const match = new RegExp(trigger.pattern, "m").exec(input);
+    if (!match) {
+      return null;
+    }
+
+    const captures = Object.fromEntries(
+      Object.entries(match.groups ?? {}).map(([key, value]) => [key, value.trim()]),
+    );
+
+    return { captures };
   } catch {
-    return false;
+    return null;
   }
+}
+
+export function applyTriggerVariables(
+  template: string,
+  captures: Record<string, string>,
+): string {
+  return template
+    .replace(/\$\{([a-zA-Z][a-zA-Z0-9_-]*)\}/g, (_, key: string) => captures[key] ?? "")
+    .replace(/<([a-zA-Z][a-zA-Z0-9_-]*)>/g, (_, key: string) => captures[key] ?? "");
 }

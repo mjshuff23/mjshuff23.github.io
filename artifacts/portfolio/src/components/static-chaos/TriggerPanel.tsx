@@ -44,8 +44,9 @@ export function TriggerPanel({
           </p>
           <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
             Triggers watch incoming MUD output and react when a pattern appears.
-            This first pass keeps things bounded: match plain text or a regex, then
-            either log a local note or send a command sequence with a cooldown.
+            Match plain text with variables like <code>&lt;user&gt;</code> or use a
+            regex with named groups, then either log a local note or send a command
+            sequence with a cooldown.
           </p>
         </div>
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary">
@@ -159,7 +160,8 @@ export function TriggerPanel({
           </p>
           <p className="mb-5 text-sm leading-relaxed text-muted-foreground">
             Match a phrase or regex from incoming output, then either log a local
-            trigger event or automatically send commands back to the MUD.
+            trigger event or automatically send commands back to the MUD. Plain-text
+            patterns can capture values with tokens like <code>&lt;user&gt;</code>.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -186,7 +188,7 @@ export function TriggerPanel({
                 onChange={(event) =>
                   onDraftChange({ ...triggerDraft, pattern: event.target.value })
                 }
-                placeholder="You are not affected by anything."
+                placeholder="<user> is mortally wounded"
                 className="w-full rounded-xl border border-white/10 bg-background/80 px-4 py-3 font-mono text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary/40"
               />
             </label>
@@ -240,7 +242,7 @@ export function TriggerPanel({
                 onChange={(event) =>
                   onDraftChange({ ...triggerDraft, commands: event.target.value })
                 }
-                placeholder={"look\nscore"}
+                placeholder={"finish <user>"}
                 rows={4}
                 disabled={triggerDraft.action !== "send"}
                 className="w-full rounded-xl border border-white/10 bg-background/80 px-4 py-3 font-mono text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
@@ -287,6 +289,12 @@ export function TriggerPanel({
                 not parse the local alias or macro helper messages.
               </p>
               <p className="mt-2">
+                Plain-text patterns can capture variables like{" "}
+                <code>&lt;user&gt;</code>. Regex mode can use named groups like{" "}
+                <code>(?&lt;user&gt;.+?)</code>. You can reuse either form in commands
+                with <code>&lt;user&gt;</code> or <code>${"{user}"}</code>.
+              </p>
+              <p className="mt-2">
                 Send-command triggers should use a cooldown to avoid loops. Start with
                 plain text matches first, then move to regex only when you actually
                 need it.
@@ -311,9 +319,9 @@ export function TriggerPanel({
               Starter Ideas
             </p>
             <p className="mt-2">
-              Match <code>You are not affected by anything.</code> and log a local
-              note, or match <code>I see no corpse here.</code> and fire a recovery
-              command sequence.
+              Match <code>&lt;user&gt; is mortally wounded</code> and send{" "}
+              <code>finish &lt;user&gt;</code>, or match{" "}
+              <code>You are not affected by anything.</code> and log a local note.
             </p>
             <p className="mt-2 inline-flex items-center gap-2">
               <Zap className="h-3.5 w-3.5 text-primary" />
