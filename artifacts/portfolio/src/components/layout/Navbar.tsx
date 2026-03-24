@@ -15,6 +15,7 @@ const navLinks = [
 
 const projectLinks = [
   { name: "ESCO", href: "#esco" },
+  { name: "Trading Card App", href: "#trading-card-app-project" },
   { name: "Static Chaos", href: "#static-chaos-project" },
 ];
 

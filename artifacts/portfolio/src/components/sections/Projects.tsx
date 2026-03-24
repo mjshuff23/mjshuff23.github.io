@@ -1,12 +1,14 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { SectionHeading } from "./SectionHeading";
-import { ExternalLink, Database, Network, ShieldCheck, FileText, TerminalSquare, ArrowRight, RadioTower } from "lucide-react";
+import { ExternalLink, Database, Network, ShieldCheck, FileText, TerminalSquare, ArrowRight, RadioTower, ScanSearch, Smartphone, MessagesSquare } from "lucide-react";
 import { ESCO_PROJECT, ECOSYSTEM_PROJECTS } from "@/data/resume";
 import { PremiumButton } from "@/components/ui/PremiumButton";
 
 const ECOSYSTEM_ICONS = [Network, Database, ShieldCheck, FileText, Database];
 const staticChaosPreview = `${import.meta.env.BASE_URL}images/static-chaos.png`;
+const tradingCardAppPreview = `${import.meta.env.BASE_URL}images/trading-card-app.png`;
+const tradingCardBinderPreview = `${import.meta.env.BASE_URL}images/trading-card-app-2.png`;
 
 export function Projects() {
   const ecosystem = ECOSYSTEM_PROJECTS.map((p, i) => ({
@@ -17,7 +19,7 @@ export function Projects() {
   return (
     <section className="py-24" id="projects">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeading title="Research & Development" index="03" subtitle="Ethical AI Ecosystem" />
+        <SectionHeading title="Research & Development" index="03" subtitle="Systems, Products & Live Experiments" />
 
         {/* Featured Project: ESCO */}
         <motion.div 
@@ -149,6 +151,152 @@ export function Projects() {
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          id="trading-card-app-project"
+          className="mt-16 rounded-2xl border border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 p-8 md:p-10"
+        >
+          <div className="grid gap-8 lg:grid-cols-[1.15fr_0.95fr] lg:items-stretch">
+            <div className="space-y-4">
+              <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#15100d] shadow-[0_20px_70px_rgba(0,0,0,0.32)]">
+                <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <ScanSearch className="h-5 w-5 text-primary" />
+                    <span className="font-mono text-xs uppercase tracking-[0.26em] text-primary">
+                      Collection Workspace
+                    </span>
+                  </div>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                    Mobile + Desktop Flow
+                  </span>
+                </div>
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  <img
+                    src={tradingCardAppPreview}
+                    alt="Trading Card App overview screen"
+                    className="h-full w-full object-cover object-top transition-transform duration-500 hover:scale-[1.02]"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_58%,rgba(21,16,13,0.88)_100%)]" />
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-xl border border-white/10 bg-background/70 p-4 backdrop-blur-sm">
+                  <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.22em] text-primary">
+                    Current Detection Stack
+                  </p>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    OCR-first identification with a DuckDuckGo reverse image search fallback when text extraction is not enough.
+                  </p>
+                </div>
+                <div className="overflow-hidden rounded-xl border border-white/10 bg-background/70 backdrop-blur-sm">
+                  <img
+                    src={tradingCardBinderPreview}
+                    alt="Trading Card App binder and catalog view"
+                    className="h-full w-full object-cover object-top"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col justify-between gap-6">
+              <div className="space-y-5">
+                <div className="flex items-center gap-3">
+                  <Smartphone className="h-5 w-5 text-primary" />
+                  <span className="font-mono text-xs uppercase tracking-[0.3em] text-primary">
+                    Product In Progress
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-3xl font-display font-bold uppercase text-foreground md:text-4xl">
+                    Trading Card App
+                  </h3>
+                  <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
+                    A local-first trading card collection app designed for mobile and desktop. The current MVP centers on card scanning and identification, while the end state is a social binder platform where each set is visualized, duplicates can be listed for trade or sale, and missing cards become a trackable want list.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {["Next.js", "NestJS", "Prisma", "Postgres", "Garage S3", "OCR", "Reverse Image Search"].map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded border border-border bg-background px-3 py-1 font-mono text-xs text-muted-foreground"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-xl border border-white/10 bg-background/70 p-5 backdrop-blur-sm">
+                    <div className="mb-3 flex items-center gap-3 text-sm font-mono uppercase tracking-[0.2em] text-primary">
+                      <ScanSearch className="h-4 w-4" />
+                      Shipping Now
+                    </div>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      Scan cards from phone or desktop, review candidate matches, and manage the binder catalog through a cleaner app workflow.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-white/10 bg-background/70 p-5 backdrop-blur-sm">
+                    <div className="mb-3 flex items-center gap-3 text-sm font-mono uppercase tracking-[0.2em] text-primary">
+                      <MessagesSquare className="h-4 w-4" />
+                      Planned Layer
+                    </div>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      Per-set virtual binders, duplicate trading/sales listings, wanted-card states, brand and set chats, DMs, and premium PSA estimate grading.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-background/70 p-5 backdrop-blur-sm">
+                  <div className="mb-3 flex items-center gap-3 text-sm font-mono uppercase tracking-[0.2em] text-primary">
+                    <Database className="h-4 w-4" />
+                    Implementation Stack
+                  </div>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    Monorepo architecture with a Next.js frontend, NestJS backend, Prisma data layer, Postgres storage, and Garage as S3-compatible object storage. The backend exposes scan, confirm, catalog, CSV import, health, and Swagger endpoints, with weighted OCR matching and DuckDuckGo reverse lookup to keep the MVP usable without paid cloud dependencies.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4 rounded-xl border border-white/10 bg-background/70 p-5 backdrop-blur-sm">
+                <div className="flex items-center gap-3 text-sm font-mono uppercase tracking-[0.2em] text-primary">
+                  <RadioTower className="h-4 w-4" />
+                  Live Access
+                </div>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Open the deployed demo to see the scan flow, review surface, and binder management interface in its current state.
+                </p>
+                <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+                  <a
+                    href="https://frontend-production-447d.up.railway.app/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <PremiumButton className="w-full gap-2">
+                      Launch Demo <ArrowRight className="h-4 w-4" />
+                    </PremiumButton>
+                  </a>
+                  <a
+                    href="https://github.com/mjshuff23/tradingcardapp"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <PremiumButton variant="outline" className="w-full gap-2">
+                      View Source <ExternalLink className="h-4 w-4" />
+                    </PremiumButton>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
