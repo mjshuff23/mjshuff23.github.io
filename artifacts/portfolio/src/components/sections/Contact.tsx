@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
-import { Mail, Github, Linkedin, Phone, Copy, CheckCircle2 } from "lucide-react";
+import { Mail, SquareCode, Linkedin, Phone, Copy, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { PERSONAL } from "@/data/resume";
 
@@ -74,7 +74,7 @@ export function Contact() {
             className="glass-panel p-6 rounded-xl flex flex-col items-center gap-4 hover:border-primary/50 transition-colors group"
           >
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-              <Github className="w-6 h-6" />
+              <SquareCode className="w-6 h-6" />
             </div>
             <div className="text-center">
               <p className="font-display font-semibold text-foreground uppercase mb-1">GitHub</p>

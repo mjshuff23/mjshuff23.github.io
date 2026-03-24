@@ -1,22 +1,24 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, ExternalLink, Github, RadioTower, RefreshCcw, TerminalSquare, Wifi, WifiOff } from "lucide-react";
-import { Terminal } from "xterm";
-import { FitAddon } from "@xterm/addon-fit";
+import { ArrowLeft, ArrowRight, Command, ExternalLink, RadioTower, RefreshCcw, SquareCode, TerminalSquare, Wifi, WifiOff } from "lucide-react";
 import "xterm/css/xterm.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { AliasPanel } from "@/components/static-chaos/AliasPanel";
 import { PremiumButton } from "@/components/ui/PremiumButton";
+import { BUILT_IN_ALIASES } from "@/features/static-chaos/aliases";
+import { useStaticChaosAliases } from "@/hooks/use-static-chaos-aliases";
+import {
+  type ConnectionStatus,
+  useStaticChaosTerminal,
+} from "@/hooks/use-static-chaos-terminal";
 import { cn } from "@/lib/utils";
-import { parseTelnetChunk, writeLocalInput } from "@/lib/telnet";
 
 const SOCKET_URL =
   import.meta.env.VITE_STATIC_CHAOS_WS_URL ?? "wss://humble-curiosity-production.up.railway.app/ws";
 const RAW_TCP_HOST = "centerbeam.proxy.rlwy.net";
 const RAW_TCP_PORT = "20711";
-
-type ConnectionStatus = "idle" | "connecting" | "connected" | "disconnected" | "error";
 
 function StatusPill({ status }: { status: ConnectionStatus }) {
   const styles: Record<ConnectionStatus, string> = {
@@ -51,336 +53,20 @@ function StatusPill({ status }: { status: ConnectionStatus }) {
 }
 
 export default function StaticChaos() {
-  const terminalHostRef = useRef<HTMLDivElement | null>(null);
-  const terminalRef = useRef<Terminal | null>(null);
-  const fitAddonRef = useRef<FitAddon | null>(null);
-  const socketRef = useRef<WebSocket | null>(null);
-  const localEchoRef = useRef(true);
-  const currentInputRef = useRef("");
-  const commandHistoryRef = useRef<string[]>([]);
-  const historyIndexRef = useRef<number | null>(null);
-  const historyDraftRef = useRef("");
-  const [status, setStatus] = useState<ConnectionStatus>("idle");
-  const [statusMessage, setStatusMessage] = useState("Live browser gateway online.");
-  const [sessionKey, setSessionKey] = useState(0);
-
-  useEffect(() => {
-    const mountNode = terminalHostRef.current;
-    if (!mountNode) {
-      return;
-    }
-
-    mountNode.innerHTML = "";
-
-    const terminal = new Terminal({
-      cursorBlink: true,
-      convertEol: false,
-      scrollOnUserInput: true,
-      fontFamily:
-        '"Cascadia Mono", "Fira Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
-      fontSize: 13,
-      lineHeight: 1.1,
-      theme: {
-        background: "#08131a",
-        foreground: "#d7f5ef",
-        cursor: "#48f0d2",
-        selectionBackground: "rgba(72, 240, 210, 0.28)",
-        black: "#0f1f26",
-        brightBlack: "#35505a",
-        red: "#ff6b6b",
-        green: "#48f0d2",
-        yellow: "#f7d774",
-        blue: "#78c7ff",
-        magenta: "#e79cff",
-        cyan: "#63f2ff",
-        white: "#f5fffd",
-      },
-    });
-
-    const fitAddon = new FitAddon();
-    terminal.loadAddon(fitAddon);
-    terminal.open(mountNode);
-
-    let viewportSyncTimer: number | null = null;
-
-    const scheduleFit = () => {
-      if (viewportSyncTimer !== null) {
-        window.clearTimeout(viewportSyncTimer);
-      }
-
-      viewportSyncTimer = window.setTimeout(() => {
-        window.requestAnimationFrame(() => {
-          window.requestAnimationFrame(() => {
-            fitAddon.fit();
-            terminal.scrollToBottom();
-          });
-        });
-      }, 32);
-    };
-
-    scheduleFit();
-    terminal.focus();
-    terminal.writeln("\x1b[36m[static-chaos]\x1b[0m Booting remote terminal...");
-    terminal.writeln("");
-
-    const sendToSocket = (payload: string | Uint8Array) => {
-      const socket = socketRef.current;
-      if (!socket || socket.readyState !== WebSocket.OPEN) {
-        return;
-      }
-
-      socket.send(payload);
-    };
-
-    const replaceCurrentInput = (nextInput: string) => {
-      const previousInput = currentInputRef.current;
-      if (previousInput === nextInput) {
-        return;
-      }
-
-      if (previousInput.length > 0) {
-        const eraseSequence = "\u007f".repeat(previousInput.length);
-        if (localEchoRef.current) {
-          writeLocalInput((text) => terminal.write(text), eraseSequence, true);
-        }
-        sendToSocket(eraseSequence);
-      }
-
-      if (nextInput.length > 0) {
-        if (localEchoRef.current) {
-          writeLocalInput((text) => terminal.write(text), nextInput, true);
-        }
-        sendToSocket(nextInput);
-      }
-
-      currentInputRef.current = nextInput;
-    };
-
-    const browseHistory = (direction: "up" | "down") => {
-      const history = commandHistoryRef.current;
-      if (history.length === 0) {
-        return false;
-      }
-
-      if (direction === "up") {
-        if (historyIndexRef.current === null) {
-          historyDraftRef.current = currentInputRef.current;
-          historyIndexRef.current = history.length - 1;
-        } else if (historyIndexRef.current > 0) {
-          historyIndexRef.current -= 1;
-        }
-
-        replaceCurrentInput(history[historyIndexRef.current] ?? "");
-        return true;
-      }
-
-      if (historyIndexRef.current === null) {
-        return false;
-      }
-
-      if (historyIndexRef.current < history.length - 1) {
-        historyIndexRef.current += 1;
-        replaceCurrentInput(history[historyIndexRef.current] ?? "");
-        return true;
-      }
-
-      historyIndexRef.current = null;
-      replaceCurrentInput(historyDraftRef.current);
-      historyDraftRef.current = "";
-      return true;
-    };
-
-    terminal.attachCustomKeyEventHandler((event) => {
-      if (event.type !== "keydown" || !localEchoRef.current) {
-        return true;
-      }
-
-      if (event.altKey || event.ctrlKey || event.metaKey) {
-        return true;
-      }
-
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-        browseHistory("up");
-        return false;
-      }
-
-      if (event.key === "ArrowDown") {
-        event.preventDefault();
-        browseHistory("down");
-        return false;
-      }
-
-      return true;
-    });
-
-    const focusTerminal = () => {
-      terminal.focus();
-    };
-
-    mountNode.addEventListener("click", focusTerminal);
-    mountNode.addEventListener("mousedown", focusTerminal);
-
-    terminalRef.current = terminal;
-    fitAddonRef.current = fitAddon;
-
-    const connect = () => {
-      const existingSocket = socketRef.current;
-      if (existingSocket) {
-        existingSocket.close();
-      }
-
-      setStatus("connecting");
-      setStatusMessage("Opening WebSocket bridge to Railway gateway.");
-
-      const socket = new WebSocket(SOCKET_URL);
-      socket.binaryType = "arraybuffer";
-      socketRef.current = socket;
-
-      socket.onopen = () => {
-        setStatus("connected");
-        setStatusMessage("Connected. Type directly into the terminal.");
-        terminal.writeln("\x1b[32m[bridge]\x1b[0m Connected.\r\n");
-        scheduleFit();
-      };
-
-      socket.onmessage = (event) => {
-        if (typeof event.data === "string") {
-          terminal.write(event.data);
-          scheduleFit();
-          return;
-        }
-
-        const chunk = new Uint8Array(event.data);
-        const parsed = parseTelnetChunk(chunk);
-
-        if (parsed.localEcho !== undefined) {
-          localEchoRef.current = parsed.localEcho;
-          if (!parsed.localEcho) {
-            currentInputRef.current = "";
-            historyIndexRef.current = null;
-            historyDraftRef.current = "";
-          }
-        }
-
-        for (const response of parsed.responses) {
-          if (socket.readyState === WebSocket.OPEN) {
-            socket.send(response);
-          }
-        }
-
-        if (parsed.text.length > 0) {
-          const text = new TextDecoder().decode(parsed.text);
-          terminal.write(text);
-          scheduleFit();
-        }
-      };
-
-      socket.onerror = () => {
-        setStatus("error");
-        setStatusMessage("WebSocket bridge failed. Retry or use the raw telnet endpoint.");
-        terminal.writeln("\r\n\x1b[31m[bridge]\x1b[0m Connection error.\r\n");
-      };
-
-      socket.onclose = () => {
-        setStatus((current) => (current === "error" ? "error" : "disconnected"));
-        setStatusMessage("Session closed. Reconnect to start a fresh terminal.");
-        terminal.writeln("\r\n\x1b[33m[bridge]\x1b[0m Session closed.\r\n");
-      };
-
-      const disposable = terminal.onData((value) => {
-        if (socket.readyState !== WebSocket.OPEN) {
-          return;
-        }
-
-        if (localEchoRef.current) {
-          if (value === "\u001b[A") {
-            browseHistory("up");
-            return;
-          }
-
-          if (value === "\u001b[B") {
-            browseHistory("down");
-            return;
-          }
-        }
-
-        if (localEchoRef.current) {
-          for (const char of value) {
-            if (char === "\r") {
-              const trimmed = currentInputRef.current.trim();
-              if (trimmed.length > 0) {
-                const history = commandHistoryRef.current;
-                if (history[history.length - 1] !== currentInputRef.current) {
-                  history.push(currentInputRef.current);
-                }
-              }
-
-              currentInputRef.current = "";
-              historyIndexRef.current = null;
-              historyDraftRef.current = "";
-              continue;
-            }
-
-            if (char === "\u007f") {
-              currentInputRef.current = currentInputRef.current.slice(0, -1);
-              historyIndexRef.current = null;
-              historyDraftRef.current = "";
-              continue;
-            }
-
-            if (char >= " " || char === "\t") {
-              currentInputRef.current += char;
-              historyIndexRef.current = null;
-              historyDraftRef.current = "";
-            }
-          }
-        }
-
-        writeLocalInput((text) => terminal.write(text), value, localEchoRef.current);
-        socket.send(value);
-      });
-
-      return () => {
-        disposable.dispose();
-        socket.close();
-      };
-    };
-
-    const disconnect = connect();
-
-    const handleResize = () => {
-      scheduleFit();
-    };
-
-    const resizeObserver = new ResizeObserver(() => {
-      scheduleFit();
-    });
-    resizeObserver.observe(mountNode);
-
-    if ("fonts" in document) {
-      void document.fonts.ready.then(() => {
-        scheduleFit();
-      });
-    }
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      if (viewportSyncTimer !== null) {
-        window.clearTimeout(viewportSyncTimer);
-      }
-      mountNode.removeEventListener("click", focusTerminal);
-      mountNode.removeEventListener("mousedown", focusTerminal);
-      window.removeEventListener("resize", handleResize);
-      resizeObserver.disconnect();
-      disconnect?.();
-      socketRef.current = null;
-      terminal.dispose();
-      terminalRef.current = null;
-      fitAddonRef.current = null;
-    };
-  }, [sessionKey]);
+  const [aliasesOpen, setAliasesOpen] = useState(false);
+  const {
+    aliasMapRef,
+    customAliases,
+    aliasDraft,
+    setAliasDraft,
+    aliasFormMessage,
+    saveAlias,
+    removeAlias,
+  } = useStaticChaosAliases();
+  const { terminalHostRef, status, statusMessage, reconnect } = useStaticChaosTerminal({
+    aliasMapRef,
+    socketUrl: SOCKET_URL,
+  });
 
   return (
     <div className="relative flex min-h-screen flex-col selection:bg-primary/30 selection:text-primary">
@@ -447,7 +133,23 @@ export default function StaticChaos() {
                   <div className="flex flex-wrap gap-3">
                     <button
                       type="button"
-                      onClick={() => setSessionKey((current) => current + 1)}
+                      onClick={() => setAliasesOpen((current) => !current)}
+                      className={cn(
+                        "inline-flex items-center gap-2 rounded-sm border px-3 py-2 font-mono text-xs uppercase tracking-[0.16em] transition-colors",
+                        aliasesOpen
+                          ? "border-primary/40 text-primary"
+                          : "border-white/10 text-muted-foreground hover:border-primary/40 hover:text-primary",
+                      )}
+                    >
+                      <Command className="h-3.5 w-3.5" />
+                      Aliases
+                      <span className="text-[10px] text-muted-foreground/80">
+                        {BUILT_IN_ALIASES.length + customAliases.length}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={reconnect}
                       className="inline-flex items-center gap-2 rounded-sm border border-white/10 px-3 py-2 font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
                     >
                       <RefreshCcw className="h-3.5 w-3.5" />
@@ -463,6 +165,18 @@ export default function StaticChaos() {
                 <div className="relative min-h-[34rem] bg-[linear-gradient(180deg,rgba(72,240,210,0.03),transparent_22%),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:auto,28px_28px,28px_28px] md:min-h-[38rem]">
                   <div ref={terminalHostRef} className="static-chaos-terminal h-[34rem] w-full p-3 md:h-[38rem] md:p-4" />
                 </div>
+
+                {aliasesOpen && (
+                  <AliasPanel
+                    builtInAliases={BUILT_IN_ALIASES}
+                    customAliases={customAliases}
+                    aliasDraft={aliasDraft}
+                    aliasFormMessage={aliasFormMessage}
+                    onDraftChange={setAliasDraft}
+                    onSaveAlias={saveAlias}
+                    onRemoveAlias={removeAlias}
+                  />
+                )}
               </motion.section>
 
               <motion.aside
@@ -530,7 +244,7 @@ export default function StaticChaos() {
                     <a href="https://github.com/mjshuff23/staticchaos" target="_blank" rel="noreferrer">
                       <PremiumButton variant="outline" className="w-full justify-between gap-2">
                         Source Repository
-                        <Github className="h-4 w-4" />
+                        <SquareCode className="h-4 w-4" />
                       </PremiumButton>
                     </a>
                     <Link href="/#projects">
