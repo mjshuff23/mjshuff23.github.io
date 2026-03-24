@@ -134,6 +134,12 @@ export function previewTriggerCommands(commands: string): string {
   return splitAliasCommands(commands).join(" ; ");
 }
 
+function stripAnsiSequences(value: string): string {
+  return value
+    .replace(/\u001B\][^\u0007]*(?:\u0007|\u001B\\)/g, "")
+    .replace(/\u001B\[[0-?]*[ -/]*[@-~]/g, "");
+}
+
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -158,32 +164,39 @@ export function matchTrigger(
   trigger: Pick<TriggerDefinition, "pattern" | "matchMode">,
   input: string,
 ): TriggerMatchResult | null {
-  if (!input || !trigger.pattern) {
+  const sanitizedInput = stripAnsiSequences(input);
+  if (!sanitizedInput || !trigger.pattern) {
     return null;
   }
 
   if (trigger.matchMode === "contains") {
     const templateRegex = compileTemplatePattern(trigger.pattern);
-    const match = templateRegex.exec(input);
+    const match = templateRegex.exec(sanitizedInput);
     if (!match) {
       return null;
     }
 
     const captures = Object.fromEntries(
-      Object.entries(match.groups ?? {}).map(([key, value]) => [key, value.trim()]),
+      Object.entries(match.groups ?? {}).map(([key, value]) => [
+        key,
+        stripAnsiSequences(value).trim(),
+      ]),
     );
 
     return { captures };
   }
 
   try {
-    const match = new RegExp(trigger.pattern, "m").exec(input);
+    const match = new RegExp(trigger.pattern, "m").exec(sanitizedInput);
     if (!match) {
       return null;
     }
 
     const captures = Object.fromEntries(
-      Object.entries(match.groups ?? {}).map(([key, value]) => [key, value.trim()]),
+      Object.entries(match.groups ?? {}).map(([key, value]) => [
+        key,
+        stripAnsiSequences(value).trim(),
+      ]),
     );
 
     return { captures };
