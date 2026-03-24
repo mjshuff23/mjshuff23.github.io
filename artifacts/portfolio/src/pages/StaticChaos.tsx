@@ -6,9 +6,13 @@ import "xterm/css/xterm.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AliasPanel } from "@/components/static-chaos/AliasPanel";
+import { MacroPanel } from "@/components/static-chaos/MacroPanel";
+import { MacroQuickBar } from "@/components/static-chaos/MacroQuickBar";
 import { PremiumButton } from "@/components/ui/PremiumButton";
 import { BUILT_IN_ALIASES } from "@/features/static-chaos/aliases";
+import { BUILT_IN_MACROS } from "@/features/static-chaos/macros";
 import { useStaticChaosAliases } from "@/hooks/use-static-chaos-aliases";
+import { useStaticChaosMacros } from "@/hooks/use-static-chaos-macros";
 import {
   type ConnectionStatus,
   useStaticChaosTerminal,
@@ -53,7 +57,7 @@ function StatusPill({ status }: { status: ConnectionStatus }) {
 }
 
 export default function StaticChaos() {
-  const [aliasesOpen, setAliasesOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<"aliases" | "macros" | null>(null);
   const {
     aliasMapRef,
     customAliases,
@@ -63,8 +67,19 @@ export default function StaticChaos() {
     saveAlias,
     removeAlias,
   } = useStaticChaosAliases();
-  const { terminalHostRef, status, statusMessage, reconnect } = useStaticChaosTerminal({
+  const {
+    macroBindingsRef,
+    customMacros,
+    quickBarMacros,
+    macroDraft,
+    setMacroDraft,
+    macroFormMessage,
+    saveMacro,
+    removeMacro,
+  } = useStaticChaosMacros();
+  const { terminalHostRef, status, statusMessage, reconnect, runMacro } = useStaticChaosTerminal({
     aliasMapRef,
+    macroBindingsRef,
     socketUrl: SOCKET_URL,
   });
 
@@ -133,10 +148,14 @@ export default function StaticChaos() {
                   <div className="flex flex-wrap gap-3">
                     <button
                       type="button"
-                      onClick={() => setAliasesOpen((current) => !current)}
+                      onClick={() =>
+                        setActivePanel((current) =>
+                          current === "aliases" ? null : "aliases",
+                        )
+                      }
                       className={cn(
                         "inline-flex items-center gap-2 rounded-sm border px-3 py-2 font-mono text-xs uppercase tracking-[0.16em] transition-colors",
-                        aliasesOpen
+                        activePanel === "aliases"
                           ? "border-primary/40 text-primary"
                           : "border-white/10 text-muted-foreground hover:border-primary/40 hover:text-primary",
                       )}
@@ -145,6 +164,25 @@ export default function StaticChaos() {
                       Aliases
                       <span className="text-[10px] text-muted-foreground/80">
                         {BUILT_IN_ALIASES.length + customAliases.length}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActivePanel((current) =>
+                          current === "macros" ? null : "macros",
+                        )
+                      }
+                      className={cn(
+                        "inline-flex items-center gap-2 rounded-sm border px-3 py-2 font-mono text-xs uppercase tracking-[0.16em] transition-colors",
+                        activePanel === "macros"
+                          ? "border-primary/40 text-primary"
+                          : "border-white/10 text-muted-foreground hover:border-primary/40 hover:text-primary",
+                      )}
+                    >
+                      Macros
+                      <span className="text-[10px] text-muted-foreground/80">
+                        {BUILT_IN_MACROS.length + customMacros.length}
                       </span>
                     </button>
                     <button
@@ -186,7 +224,9 @@ export default function StaticChaos() {
                   </div>
                 </div>
 
-                {aliasesOpen && (
+                <MacroQuickBar macros={quickBarMacros} onRunMacro={runMacro} />
+
+                {activePanel && (
                   <div className="border-t border-primary/10 bg-[linear-gradient(180deg,rgba(72,240,210,0.05),rgba(7,17,24,0.96))]">
                     <div className="px-5 pt-4">
                       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#08131a]/80 px-4 py-3">
@@ -195,7 +235,9 @@ export default function StaticChaos() {
                             Client Tools
                           </p>
                           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                            Browser-side aliases and local quality-of-life controls
+                            {activePanel === "aliases"
+                              ? "Browser-side aliases and shorthand expansion"
+                              : "Keyboard macros with mobile-friendly quick buttons"}
                           </p>
                         </div>
                         <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
@@ -204,15 +246,28 @@ export default function StaticChaos() {
                       </div>
                     </div>
 
-                    <AliasPanel
-                      builtInAliases={BUILT_IN_ALIASES}
-                      customAliases={customAliases}
-                      aliasDraft={aliasDraft}
-                      aliasFormMessage={aliasFormMessage}
-                      onDraftChange={setAliasDraft}
-                      onSaveAlias={saveAlias}
-                      onRemoveAlias={removeAlias}
-                    />
+                    {activePanel === "aliases" ? (
+                      <AliasPanel
+                        builtInAliases={BUILT_IN_ALIASES}
+                        customAliases={customAliases}
+                        aliasDraft={aliasDraft}
+                        aliasFormMessage={aliasFormMessage}
+                        onDraftChange={setAliasDraft}
+                        onSaveAlias={saveAlias}
+                        onRemoveAlias={removeAlias}
+                      />
+                    ) : (
+                      <MacroPanel
+                        builtInMacros={BUILT_IN_MACROS}
+                        customMacros={customMacros}
+                        macroDraft={macroDraft}
+                        macroFormMessage={macroFormMessage}
+                        onDraftChange={setMacroDraft}
+                        onSaveMacro={saveMacro}
+                        onRemoveMacro={removeMacro}
+                        onRunMacro={runMacro}
+                      />
+                    )}
                   </div>
                 )}
               </motion.section>

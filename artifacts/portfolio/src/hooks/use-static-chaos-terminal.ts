@@ -3,8 +3,14 @@ import { Terminal } from "xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import {
   resolveAlias,
+  splitAliasCommands,
   type AliasDefinition,
 } from "@/features/static-chaos/aliases";
+import {
+  previewMacroCommands,
+  resolveMacroBinding,
+  type MacroDefinition,
+} from "@/features/static-chaos/macros";
 import { parseTelnetChunk, writeLocalInput } from "@/lib/telnet";
 
 export type ConnectionStatus =
@@ -25,11 +31,13 @@ function toSocketPayload(payload: Uint8Array): ArrayBuffer {
 
 type UseStaticChaosTerminalArgs = {
   aliasMapRef: RefObject<Map<string, AliasDefinition>>;
+  macroBindingsRef: RefObject<Map<string, MacroDefinition>>;
   socketUrl: string;
 };
 
 export function useStaticChaosTerminal({
   aliasMapRef,
+  macroBindingsRef,
   socketUrl,
 }: UseStaticChaosTerminalArgs) {
   const terminalHostRef = useRef<HTMLDivElement | null>(null);
@@ -44,6 +52,7 @@ export function useStaticChaosTerminal({
   const [status, setStatus] = useState<ConnectionStatus>("idle");
   const [statusMessage, setStatusMessage] = useState("Live browser gateway online.");
   const [sessionKey, setSessionKey] = useState(0);
+  const runMacroRef = useRef<((macro: MacroDefinition) => boolean) | null>(null);
 
   useEffect(() => {
     const mountNode = terminalHostRef.current;
@@ -156,6 +165,62 @@ export function useStaticChaosTerminal({
       currentInputRef.current = nextInput;
     };
 
+    const clearDraftInput = (rawInput = currentInputRef.current) => {
+      if (!rawInput) {
+        return;
+      }
+
+      if (localEchoRef.current) {
+        writeLocalInput(writeTerminal, LOCAL_ERASE_CHAR.repeat(rawInput.length), true);
+      }
+
+      sendToSocket(REMOTE_ERASE_CHAR.repeat(rawInput.length));
+      currentInputRef.current = "";
+      historyIndexRef.current = null;
+      historyDraftRef.current = "";
+    };
+
+    const clearRemoteSubmittedInput = (rawInput: string) => {
+      if (rawInput.length === 0) {
+        return;
+      }
+
+      sendToSocket(REMOTE_ERASE_CHAR.repeat(rawInput.length));
+    };
+
+    const executeClientCommands = ({
+      commands,
+      label,
+      prefix,
+      preview,
+      clearDraft,
+    }: {
+      commands: string[];
+      label: string;
+      prefix: "alias" | "macro";
+      preview: string;
+      clearDraft?: boolean;
+    }) => {
+      if (commands.length === 0) {
+        return false;
+      }
+
+      const socket = socketRef.current;
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        return false;
+      }
+
+      if (clearDraft) {
+        clearDraftInput();
+      }
+
+      writelnTerminal(`\x1b[36m[${prefix}]\x1b[0m ${label} -> ${preview}`);
+      sendToSocket(`${commands.join("\r")}\r`);
+      scheduleFit();
+      terminal.focus();
+      return true;
+    };
+
     const browseHistory = (direction: "up" | "down") => {
       const history = commandHistoryRef.current;
       if (history.length === 0) {
@@ -191,11 +256,31 @@ export function useStaticChaosTerminal({
     };
 
     terminal.attachCustomKeyEventHandler((event) => {
-      if (event.type !== "keydown" || !localEchoRef.current) {
+      if (event.type !== "keydown") {
         return true;
       }
 
       if (event.altKey || event.ctrlKey || event.metaKey) {
+        return true;
+      }
+
+      const macroBinding = resolveMacroBinding(event.code);
+      if (macroBinding) {
+        const macro = macroBindingsRef.current.get(macroBinding);
+        if (macro) {
+          event.preventDefault();
+          executeClientCommands({
+            commands: splitAliasCommands(macro.commands),
+            label: `${macro.name} [${macro.binding}]`,
+            prefix: "macro",
+            preview: previewMacroCommands(macro.commands),
+            clearDraft: true,
+          });
+          return false;
+        }
+      }
+
+      if (!localEchoRef.current) {
         return true;
       }
 
@@ -223,6 +308,14 @@ export function useStaticChaosTerminal({
 
     terminalRef.current = terminal;
     fitAddonRef.current = fitAddon;
+    runMacroRef.current = (macro) =>
+      executeClientCommands({
+        commands: splitAliasCommands(macro.commands),
+        label: `${macro.name} [${macro.binding}]`,
+        prefix: "macro",
+        preview: previewMacroCommands(macro.commands),
+        clearDraft: true,
+      });
 
     const connect = () => {
       const existingSocket = socketRef.current;
@@ -324,15 +417,13 @@ export function useStaticChaosTerminal({
 
           const resolvedAlias = resolveAlias(rawInput, aliasMapRef.current);
           if (resolvedAlias) {
-            if (rawInput.length > 0) {
-              sendToSocket(REMOTE_ERASE_CHAR.repeat(rawInput.length));
-            }
-
-            writelnTerminal(
-              `\x1b[36m[alias]\x1b[0m ${resolvedAlias.alias.key} -> ${resolvedAlias.preview}`,
-            );
-            sendToSocket(`${resolvedAlias.commands.join("\r")}\r`);
-            scheduleFit();
+            clearRemoteSubmittedInput(rawInput);
+            executeClientCommands({
+              commands: resolvedAlias.commands,
+              label: resolvedAlias.alias.key,
+              prefix: "alias",
+              preview: resolvedAlias.preview,
+            });
             return;
           }
 
@@ -400,17 +491,19 @@ export function useStaticChaosTerminal({
       window.removeEventListener("resize", handleResize);
       resizeObserver.disconnect();
       disconnect?.();
+      runMacroRef.current = null;
       socketRef.current = null;
       terminal.dispose();
       terminalRef.current = null;
       fitAddonRef.current = null;
     };
-  }, [aliasMapRef, sessionKey, socketUrl]);
+  }, [aliasMapRef, macroBindingsRef, sessionKey, socketUrl]);
 
   return {
     terminalHostRef,
     status,
     statusMessage,
     reconnect: () => setSessionKey((current) => current + 1),
+    runMacro: (macro: MacroDefinition) => runMacroRef.current?.(macro) ?? false,
   };
 }
