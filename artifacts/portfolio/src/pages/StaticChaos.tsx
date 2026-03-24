@@ -1,18 +1,21 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Command, ExternalLink, RadioTower, RefreshCcw, SquareCode, TerminalSquare, Wifi, WifiOff } from "lucide-react";
+import { ArrowLeft, ArrowRight, BellRing, Command, ExternalLink, RadioTower, RefreshCcw, SquareCode, TerminalSquare, Wifi, WifiOff } from "lucide-react";
 import "xterm/css/xterm.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AliasPanel } from "@/components/static-chaos/AliasPanel";
 import { MacroPanel } from "@/components/static-chaos/MacroPanel";
 import { MacroQuickBar } from "@/components/static-chaos/MacroQuickBar";
+import { TriggerPanel } from "@/components/static-chaos/TriggerPanel";
 import { PremiumButton } from "@/components/ui/PremiumButton";
 import { BUILT_IN_ALIASES } from "@/features/static-chaos/aliases";
 import { BUILT_IN_MACROS } from "@/features/static-chaos/macros";
+import { BUILT_IN_TRIGGERS } from "@/features/static-chaos/triggers";
 import { useStaticChaosAliases } from "@/hooks/use-static-chaos-aliases";
 import { useStaticChaosMacros } from "@/hooks/use-static-chaos-macros";
+import { useStaticChaosTriggers } from "@/hooks/use-static-chaos-triggers";
 import {
   type ConnectionStatus,
   useStaticChaosTerminal,
@@ -57,7 +60,7 @@ function StatusPill({ status }: { status: ConnectionStatus }) {
 }
 
 export default function StaticChaos() {
-  const [activePanel, setActivePanel] = useState<"aliases" | "macros" | null>(null);
+  const [activePanel, setActivePanel] = useState<"aliases" | "macros" | "triggers" | null>(null);
   const {
     aliasMapRef,
     customAliases,
@@ -77,9 +80,20 @@ export default function StaticChaos() {
     saveMacro,
     removeMacro,
   } = useStaticChaosMacros();
+  const {
+    triggerListRef,
+    customTriggers,
+    triggerDraft,
+    setTriggerDraft,
+    triggerFormMessage,
+    saveTrigger,
+    removeTrigger,
+    toggleTrigger,
+  } = useStaticChaosTriggers();
   const { terminalHostRef, status, statusMessage, reconnect, runMacro } = useStaticChaosTerminal({
     aliasMapRef,
     macroBindingsRef,
+    triggerListRef,
     socketUrl: SOCKET_URL,
   });
 
@@ -187,6 +201,26 @@ export default function StaticChaos() {
                     </button>
                     <button
                       type="button"
+                      onClick={() =>
+                        setActivePanel((current) =>
+                          current === "triggers" ? null : "triggers",
+                        )
+                      }
+                      className={cn(
+                        "inline-flex items-center gap-2 rounded-sm border px-3 py-2 font-mono text-xs uppercase tracking-[0.16em] transition-colors",
+                        activePanel === "triggers"
+                          ? "border-primary/40 text-primary"
+                          : "border-white/10 text-muted-foreground hover:border-primary/40 hover:text-primary",
+                      )}
+                    >
+                      <BellRing className="h-3.5 w-3.5" />
+                      Trigger Tools
+                      <span className="rounded-full border border-white/10 px-1.5 py-0.5 text-[10px] leading-none text-muted-foreground/80">
+                        {BUILT_IN_TRIGGERS.length + customTriggers.length} total
+                      </span>
+                    </button>
+                    <button
+                      type="button"
                       onClick={reconnect}
                       className="inline-flex items-center gap-2 rounded-sm border border-white/10 px-3 py-2 font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
                     >
@@ -237,7 +271,9 @@ export default function StaticChaos() {
                           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                             {activePanel === "aliases"
                               ? "Browser-side aliases and shorthand expansion"
-                              : "Keyboard macros with mobile-friendly quick buttons"}
+                              : activePanel === "macros"
+                                ? "Keyboard macros with mobile-friendly quick buttons"
+                                : "Output triggers with local notes or command responses"}
                           </p>
                         </div>
                         <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
@@ -256,7 +292,7 @@ export default function StaticChaos() {
                         onSaveAlias={saveAlias}
                         onRemoveAlias={removeAlias}
                       />
-                    ) : (
+                    ) : activePanel === "macros" ? (
                       <MacroPanel
                         builtInMacros={BUILT_IN_MACROS}
                         customMacros={customMacros}
@@ -266,6 +302,17 @@ export default function StaticChaos() {
                         onSaveMacro={saveMacro}
                         onRemoveMacro={removeMacro}
                         onRunMacro={runMacro}
+                      />
+                    ) : (
+                      <TriggerPanel
+                        builtInTriggers={BUILT_IN_TRIGGERS}
+                        customTriggers={customTriggers}
+                        triggerDraft={triggerDraft}
+                        triggerFormMessage={triggerFormMessage}
+                        onDraftChange={setTriggerDraft}
+                        onSaveTrigger={saveTrigger}
+                        onRemoveTrigger={removeTrigger}
+                        onToggleTrigger={toggleTrigger}
                       />
                     )}
                   </div>

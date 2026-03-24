@@ -11,6 +11,12 @@ import {
   resolveMacroBinding,
   type MacroDefinition,
 } from "@/features/static-chaos/macros";
+import {
+  doesTriggerMatch,
+  getTriggerPatternLabel,
+  previewTriggerCommands,
+  type TriggerDefinition,
+} from "@/features/static-chaos/triggers";
 import { parseTelnetChunk, writeLocalInput } from "@/lib/telnet";
 
 export type ConnectionStatus =
@@ -32,12 +38,14 @@ function toSocketPayload(payload: Uint8Array): ArrayBuffer {
 type UseStaticChaosTerminalArgs = {
   aliasMapRef: RefObject<Map<string, AliasDefinition>>;
   macroBindingsRef: RefObject<Map<string, MacroDefinition>>;
+  triggerListRef: RefObject<TriggerDefinition[]>;
   socketUrl: string;
 };
 
 export function useStaticChaosTerminal({
   aliasMapRef,
   macroBindingsRef,
+  triggerListRef,
   socketUrl,
 }: UseStaticChaosTerminalArgs) {
   const terminalHostRef = useRef<HTMLDivElement | null>(null);
@@ -53,6 +61,8 @@ export function useStaticChaosTerminal({
   const [statusMessage, setStatusMessage] = useState("Live browser gateway online.");
   const [sessionKey, setSessionKey] = useState(0);
   const runMacroRef = useRef<((macro: MacroDefinition) => boolean) | null>(null);
+  const triggerCooldownsRef = useRef<Map<string, number>>(new Map());
+  const triggerBufferRef = useRef("");
 
   useEffect(() => {
     const mountNode = terminalHostRef.current;
@@ -197,7 +207,7 @@ export function useStaticChaosTerminal({
     }: {
       commands: string[];
       label: string;
-      prefix: "alias" | "macro";
+      prefix: "alias" | "macro" | "trigger";
       preview: string;
       clearDraft?: boolean;
     }) => {
@@ -219,6 +229,55 @@ export function useStaticChaosTerminal({
       scheduleFit();
       terminal.focus();
       return true;
+    };
+
+    const processTriggerText = (text: string) => {
+      if (!text) {
+        return;
+      }
+
+      const previousTail = triggerBufferRef.current.slice(-512);
+      const candidateText = `${previousTail}${text}`;
+      triggerBufferRef.current = `${triggerBufferRef.current}${text}`.slice(-4096);
+
+      const now = Date.now();
+      for (const trigger of triggerListRef.current) {
+        if (!trigger.enabled) {
+          continue;
+        }
+
+        const lastFiredAt = triggerCooldownsRef.current.get(trigger.key) ?? 0;
+        if (now - lastFiredAt < trigger.cooldownMs) {
+          continue;
+        }
+
+        if (!doesTriggerMatch(trigger, candidateText)) {
+          continue;
+        }
+
+        if (
+          !doesTriggerMatch(trigger, text) &&
+          doesTriggerMatch(trigger, previousTail)
+        ) {
+          continue;
+        }
+
+        triggerCooldownsRef.current.set(trigger.key, now);
+
+        if (trigger.action === "send") {
+          executeClientCommands({
+            commands: splitAliasCommands(trigger.commands),
+            label: trigger.name,
+            prefix: "trigger",
+            preview: previewTriggerCommands(trigger.commands),
+          });
+          continue;
+        }
+
+        writelnTerminal(
+          `\x1b[35m[trigger]\x1b[0m ${trigger.name} matched ${getTriggerPatternLabel(trigger)}`,
+        );
+      }
     };
 
     const browseHistory = (direction: "up" | "down") => {
@@ -333,6 +392,8 @@ export function useStaticChaosTerminal({
       socket.onopen = () => {
         setStatus("connected");
         setStatusMessage("Connected. Type directly into the terminal.");
+        triggerBufferRef.current = "";
+        triggerCooldownsRef.current.clear();
         writelnTerminal("\x1b[32m[bridge]\x1b[0m Connected.\r\n");
         scheduleFit();
       };
@@ -340,6 +401,7 @@ export function useStaticChaosTerminal({
       socket.onmessage = (event) => {
         if (typeof event.data === "string") {
           writeTerminal(event.data);
+          processTriggerText(event.data);
           scheduleFit();
           return;
         }
@@ -365,6 +427,7 @@ export function useStaticChaosTerminal({
         if (parsed.text.length > 0) {
           const text = decoder.decode(parsed.text);
           writeTerminal(text);
+          processTriggerText(text);
           scheduleFit();
         }
       };
@@ -378,6 +441,8 @@ export function useStaticChaosTerminal({
       socket.onclose = () => {
         setStatus((current) => (current === "error" ? "error" : "disconnected"));
         setStatusMessage("Session closed. Reconnect to start a fresh terminal.");
+        triggerBufferRef.current = "";
+        triggerCooldownsRef.current.clear();
         writelnTerminal("\r\n\x1b[33m[bridge]\x1b[0m Session closed.\r\n");
       };
 
@@ -497,7 +562,7 @@ export function useStaticChaosTerminal({
       terminalRef.current = null;
       fitAddonRef.current = null;
     };
-  }, [aliasMapRef, macroBindingsRef, sessionKey, socketUrl]);
+  }, [aliasMapRef, macroBindingsRef, sessionKey, socketUrl, triggerListRef]);
 
   return {
     terminalHostRef,
