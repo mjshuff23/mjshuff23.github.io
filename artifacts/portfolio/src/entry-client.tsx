@@ -1,6 +1,12 @@
-import { createRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+
+const root = document.getElementById("root");
+
+if (!root) {
+  throw new Error("Portfolio root element was not found.");
+}
 
 const searchParams = new URLSearchParams(window.location.search);
 const redirectedPath = searchParams.get("__gh_path");
@@ -13,4 +19,13 @@ if (redirectedPath) {
   window.history.replaceState(null, "", nextUrl);
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+const canHydratePrerenderedHome =
+  root.hasChildNodes() &&
+  !redirectedPath &&
+  window.location.pathname === "/";
+
+if (canHydratePrerenderedHome) {
+  hydrateRoot(root, <App />);
+} else {
+  createRoot(root).render(<App />);
+}

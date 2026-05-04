@@ -1,10 +1,12 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/Home";
 import NotFound from "@/pages/not-found";
-import StaticChaos from "@/pages/StaticChaos";
+
+const StaticChaos = lazy(() => import("@/pages/StaticChaos"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,19 +19,27 @@ const queryClient = new QueryClient({
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/staticchaos" component={StaticChaos} />
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/staticchaos" component={StaticChaos} />
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 
-function App() {
+type AppProps = {
+  ssrPath?: string;
+};
+
+function App({ ssrPath }: AppProps = {}) {
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <WouterRouter base={basePath} ssrPath={ssrPath}>
           <Router />
         </WouterRouter>
         <Toaster />

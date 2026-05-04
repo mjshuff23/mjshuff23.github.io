@@ -112,7 +112,7 @@ export default function StaticChaos() {
               transition={{ duration: 0.5 }}
               className="mb-12 flex flex-col gap-6"
             >
-              <Link href="/#projects">
+              <Link href="/#projects" asChild>
                 <a className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.24em] text-muted-foreground transition-colors hover:text-primary">
                   <ArrowLeft className="h-4 w-4" />
                   Back To Projects
@@ -387,7 +387,7 @@ export default function StaticChaos() {
                         <SquareCode className="h-4 w-4" />
                       </PremiumButton>
                     </a>
-                    <Link href="/#projects">
+                    <Link href="/#projects" asChild>
                       <a>
                         <PremiumButton className="w-full justify-between gap-2">
                           Return To Projects

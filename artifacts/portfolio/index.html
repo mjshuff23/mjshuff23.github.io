@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
@@ -23,7 +23,7 @@
     <meta name="twitter:image" content="https://mjshuff23.github.io/opengraph.png" />
     <meta name="twitter:image:alt" content="Michael Shuff portfolio preview in a dark cyber-themed style." />
 
-    <script type="application/ld+json">
+    <script type="application/ld+json" id="portfolio-structured-data">
     {
       "@context": "https://schema.org",
       "@type": "Person",
@@ -48,7 +48,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="root"><!--app-html--></div>
+    <script type="module" src="/src/entry-client.tsx"></script>
   </body>
 </html>

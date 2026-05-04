@@ -372,7 +372,7 @@ export function Projects() {
                   terminal running through the Railway gateway.
                 </p>
                 <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-                  <Link href="/staticchaos">
+                  <Link href="/staticchaos" asChild>
                     <a>
                       <PremiumButton className="w-full gap-2">
                         Launch Demo <ArrowRight className="h-4 w-4" />
