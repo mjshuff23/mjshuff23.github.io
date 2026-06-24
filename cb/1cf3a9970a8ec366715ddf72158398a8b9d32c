@@ -1,0 +1,19 @@
+docs/arc-data-deletion.html
+  s_6e4f81eac7568e::t_055d250abcb971 1-110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "cb1cf3a9970a8ec366715ddf72158398a8b9d32c",
+  "prompts": {},
+  "sessions": {
+    "s_6e4f81eac7568e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc5f6ca9-5db3-4fcf-9269-460234e36d9b",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Michael Shuff <mjshuff23@gmail.com>"
+    }
+  }
+}
