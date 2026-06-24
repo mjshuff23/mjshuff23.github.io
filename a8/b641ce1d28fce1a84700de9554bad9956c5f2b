@@ -1,0 +1,19 @@
+docs/arc-privacy-policy.html
+  s_6e4f81eac7568e::t_a7d87d2ab4965b 1-124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "a8b641ce1d28fce1a84700de9554bad9956c5f2b",
+  "prompts": {},
+  "sessions": {
+    "s_6e4f81eac7568e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc5f6ca9-5db3-4fcf-9269-460234e36d9b",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Michael Shuff <mjshuff23@gmail.com>"
+    }
+  }
+}
